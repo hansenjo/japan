@@ -27,7 +27,7 @@ void QwScaler::ProcessOptions(QwOptions &options)
  * Constructor
  */
 QwScaler::QwScaler(const TString& name)
-: VQwSubsystem(name),VQwSubsystemParity(name)
+: VQwSubsystem(name),VQwSubsystemParity(name),fGoodEventCount{0}
 {
   // Nothing, really
 }
@@ -52,7 +52,7 @@ QwScaler::~QwScaler()
  * @param mapfile Map file
  * @return Zero if successful
  */
-Int_t QwScaler::LoadChannelMap(TString mapfile)
+Int_t QwScaler::LoadChannelMap( const TString& mapfile)
 {
   // Normalization channel (register default token "1")
   const TString default_norm_channel = "1";
@@ -226,7 +226,7 @@ Int_t QwScaler::LoadChannelMap(TString mapfile)
   return 0;
 }
 
-Int_t QwScaler::LoadInputParameters(TString mapfile)
+Int_t QwScaler::LoadInputParameters( const TString& mapfile)
 {
   // Open the file
   QwParameterFile mapstr(mapfile.Data());
@@ -383,7 +383,7 @@ VQwSubsystem& QwScaler::operator=(VQwSubsystem *value)
       *(fScaler.at(i)) = *(input->fScaler.at(i));
     }
   }
-  return *this; 
+  return *this;
 }
 
 /**
@@ -507,7 +507,7 @@ void QwScaler::CalculateRunningAverage()
   }
 }
 
-Int_t QwScaler::LoadEventCuts(TString filename)
+Int_t QwScaler::LoadEventCuts( const TString& filename)
 {
   return 0;
 }

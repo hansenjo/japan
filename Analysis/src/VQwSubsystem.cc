@@ -14,7 +14,7 @@
    Qweak Analysis Framework
 
    Each subsystem will have a class derived from "VQwSubsystem", and
-   will be responsible for decoding of it's own data stream and any
+   will be responsible for decoding of its own data stream and any
    special event processing required. QwSubsystemArray will handle
    mutiple "VQwSubsystem" objects and one call on the QwSubsystemArray
    will handle all the calls to that method in each subsystem.  Each
@@ -48,58 +48,58 @@ Int_t VQwSubsystem::LoadDetectorMaps(QwParameterFile& file)
 
     // Find key-value pairs
     std::string key, value;
-    if (file.HasVariablePair("=", key, value)) {
-      if ( value.size() > 0) {
+    if( file.HasVariablePair("=", key, value) ) {
+      if( !value.empty() ) {
 
-	// If-Ordering Optimization for parity
-	// Beamline     1423
-	// MainDetector 123
-	// Lumi         123
-	// Helicity     1
-	// Scanner      12
-	// Beammod      1
-	//              1(6),2(4),3(3),4(1)
-	//              map, param, eventcut, geom
+        // If-Ordering Optimization for parity
+        // Beamline     1423
+        // MainDetector 123
+        // Lumi         123
+        // Helicity     1
+        // Scanner      12
+        // Beammod      1
+        //              1(6),2(4),3(3),4(1)
+        //              map, param, eventcut, geom
 
-	// Map file definition
-	if (key == "map" ) {
-	  LoadChannelMap(value);
-	  //	  fDetectorMapsNames.push_back(value);
-	}
-	// Parameter file definition
-	else if (key == "param" ) {
-	  LoadInputParameters(value); 
-	  // fDetectorMapsNames.push_back(value);
-	}
-	// Event cut file definition
-	else if (key == "eventcut") {
-	  LoadEventCuts(value);
-	  // fDetectorMapsNames.push_back(value);
-	}
-	// Geometry file definition
-	else if (key == "geom" ) {
-	  LoadGeometryDefinition(value);
-	  // fDetectorMapsNames.push_back(value);
-	}
-        // Crosstalk file definition
-        else if (key == "cross" ) {
+        // Map file definition
+        if( key == "map" ) {
+          LoadChannelMap(value);
+          //	  fDetectorMapsNames.push_back(value);
+        }
+          // Parameter file definition
+        else if( key == "param" ) {
+          LoadInputParameters(value);
+          // fDetectorMapsNames.push_back(value);
+        }
+          // Event cut file definition
+        else if( key == "eventcut" ) {
+          LoadEventCuts(value);
+          // fDetectorMapsNames.push_back(value);
+        }
+          // Geometry file definition
+        else if( key == "geom" ) {
+          LoadGeometryDefinition(value);
+          // fDetectorMapsNames.push_back(value);
+        }
+          // Crosstalk file definition
+        else if( key == "cross" ) {
           LoadCrosstalkDefinition(value);
           // fDetectorMapsNames.push_back(value);
         }
- 	//Event type mask
-	else if (key == "mask") {
-	  SetEventTypeMask(file.GetUInt(value));
-	}
+          //Event type mask
+        else if( key == "mask" ) {
+          SetEventTypeMask(QwParameterFile::GetUInt(value));
+        }
       }
-      
+
     } // end of HasVariablePair
-  } // end of while 
-  
-  
+  } // end of while
+
+
   //
   // The above approach that fDetectorMapsNames.push_back(value) in VQwSubsystem doesn't work, because it reads the following...
   //
-  // >>> VQwSubsystem::LoadDetectorMaps Subsytem Main Detector uses the following map files : 
+  // >>> VQwSubsystem::LoadDetectorMaps Subsystem Main Detector uses the following map files :
   //   --->    1/3 :        qweak_maindet.map
   //   --->    2/3 : qweak_maindet_pedestal.map
   //   --->    3/3 : qweak_maindet_eventcuts.in
@@ -108,7 +108,7 @@ Int_t VQwSubsystem::LoadDetectorMaps(QwParameterFile& file)
   // So, fDetectorMapsNams.push_back will be called LoadChannelMap(), LoadInputParameter(), LoadEventCuts(),
   // and  LoadGeometryDefinition() in each subsystem.
   //
-  // >>> VQwSubsystem::LoadDetectorMaps Subsytem Main Detector uses the following map files : 
+  // >>> VQwSubsystem::LoadDetectorMaps Subsystem Main Detector uses the following map files :
   //   --->    1/3 : /home/jhlee/QwAnalysis/trunk/Parity/prminput/qweak_maindet.10213-.map
   //   --->    2/3 : /home/jhlee/QwAnalysis/trunk/Parity/prminput/qweak_maindet_pedestal.10229-.map
   //   --->    3/3 : /home/jhlee/QwAnalysis/trunk/Parity/prminput/qweak_maindet_eventcuts.in
@@ -132,11 +132,11 @@ VQwSubsystem* VQwSubsystem::GetSibling(const std::string& name) const
 {
   // Get the parent and check for existence
   QwSubsystemArray* parent = GetParent();
-  if (parent != 0)
+  if (parent)
     // Return the subsystem with name in the parent
     return parent->GetSubsystemByName(name);
   else
-    return 0; // GetParent() prints error already
+    return nullptr; // GetParent() prints error already
 }
 
 
@@ -278,8 +278,8 @@ void VQwSubsystem::PrintInfo() const
   std::cout << "Name of this subsystem: " << fSystemName << std::endl;
   for (size_t roc_index = 0; roc_index < fROC_IDs.size(); roc_index++) {
     std::cout << "ROC" << std::dec << fROC_IDs[roc_index] << ": ";
-    for (size_t bank_index = 0; bank_index < fBank_IDs[roc_index].size(); bank_index++)
-      std::cout << std::hex << "0x" << fBank_IDs[roc_index][bank_index] << " ";
+    for (auto bank_id : fBank_IDs[roc_index])
+      std::cout << std::hex << "0x" << bank_id << " ";
     std::cout << std::dec << std::endl;
   }
   std::cout << "in array " << std::hex << GetParent() << std::dec << std::endl;
@@ -320,12 +320,11 @@ void VQwSubsystem::PrintDetectorMaps(Bool_t status) const
 
     if (total != 0) {
 
-      for (std::map<TString,TString>::const_iterator ii = fDetectorMaps.begin();
-           ii != fDetectorMaps.end(); ++ii) {
+      for (const auto & theMap : fDetectorMaps) {
 
         index++;
-        TString name = (*ii).first;
-        TString all  = (*ii).second;
+        const TString& name = theMap.first;
+        const TString& all  = theMap.second;
         QwMessage << "   ---> " << index << "/" << total << ": " << name << QwLog::endl;
         if (local_debug)
           QwMessage << "   " << all << QwLog::endl;

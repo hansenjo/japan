@@ -1,10 +1,11 @@
-#ifndef __QWFACTORY__
-#define __QWFACTORY__
+#ifndef QWFACTORY_H
+#define QWFACTORY_H
 
 // System headers
 #include <cxxabi.h>
 #include <cstdlib>
 #include <typeindex>
+#include <exception>
 
 // Qweak headers
 #include "QwLog.h"
@@ -15,8 +16,8 @@ class VQwDataElement;
 class VQwDataHandler;
 
 // Exceptions
-struct QwException_TypeUnknown {
-  QwException_TypeUnknown() { }
+struct QwException_TypeUnknown : public std::invalid_argument {
+  explicit QwException_TypeUnknown( const std::string& msg ) : std::invalid_argument(msg) {}
 };
 
 
@@ -36,7 +37,7 @@ class VQwFactory {
   public:
 
     /// Default virtual destructor
-    virtual ~VQwFactory() { }
+    virtual ~VQwFactory() = default;
 
     /// Create an object of type with name
     static base_t* Create(const std::string& type, const std::string& name) {
@@ -50,7 +51,7 @@ class VQwFactory {
 
     /// Test whether object inherits from type
     static bool InheritsFrom(base_t* base, const std::string& type) {
-      return (Cast(base,type) != 0);
+      return (Cast(base,type) != nullptr);
     }
 
     /// Creation of objects by type (pure virtual)
@@ -67,10 +68,9 @@ class VQwFactory {
     }
     /// List available type factories
     static void ListRegisteredTypes() {
-      typename std::map<std::string,VQwFactory<base_t>*>::iterator type;
-      for (type = GetRegisteredTypes().begin();
-           type != GetRegisteredTypes().end(); type++ )
-        QwMessage << type->first << QwLog::endl;
+      const auto& types = GetRegisteredTypes();
+      for ( const auto& type : types )
+        QwMessage << type.first << QwLog::endl;
     }
 
     /// Get a concrete type factory by string
@@ -86,7 +86,7 @@ class VQwFactory {
         QwWarning << "  RegisterSomethingFactory(" << type << ");" << QwLog::endl;
         QwWarning << "Ensure that the dynamic library contains the factory object."
                   << QwLog::endl;
-        throw QwException_TypeUnknown();
+        throw QwException_TypeUnknown(type + " is not registered");
       }
     }
 
@@ -108,7 +108,7 @@ class QwFactory: public VQwFactory<base_t> {
   public:
 
     /// Constructor which stores type name in list of registered types
-    QwFactory(const std::string& type) {
+    explicit QwFactory(const std::string& type) {
       VQwFactory<base_t>::GetRegisteredTypes()[type] = this;
     }
 
@@ -159,13 +159,14 @@ class VQwCloneable {
   public:
 
     /// Virtual destructor
-    virtual ~VQwCloneable() { }
+    virtual ~VQwCloneable() = default;
 
     /// Get demangled name of this class
     std::string GetClassName() const {
       int status;
       const std::type_index ti = typeid(*this);
-      char* name = abi::__cxa_demangle(ti.name(), 0, 0, &status);
+      char* name = abi::__cxa_demangle(ti.name(),
+                                       nullptr, nullptr, &status);
       std::string str(name);
       free(name);
       return str;
@@ -181,7 +182,7 @@ class VQwCloneable {
     }
 
     /// Virtual factory getter
-    virtual const VQwFactory<base_t>* Factory() const { return 0; }
+    virtual const VQwFactory<base_t>* Factory() const { return nullptr; }
 
 }; // class VQwCloneable
 
@@ -194,7 +195,7 @@ class MQwCloneable: virtual public VQwCloneable<base_t> {
   public:
 
     /// Virtual destructor
-    virtual ~MQwCloneable() { };
+    virtual ~MQwCloneable() = default;
 
     /// Concrete clone method
     virtual base_t* Clone() const {
@@ -207,13 +208,13 @@ class MQwCloneable: virtual public VQwCloneable<base_t> {
     /// Object creation
     static base_t* Create(const std::string& name) {
       if (fFactory) return fFactory->Create(name);
-      else return 0;
+      else return nullptr;
     }
 
     /// Object dynamic cast
     static type_t* Cast(type_t* type) {
       if (fFactory) return fFactory->Cast(type);
-      else return 0;
+      else return nullptr;
     }
 
   private:
@@ -240,14 +241,16 @@ class MQwDataElementCloneable: public MQwCloneable<VQwDataElement,dataelement_t>
 /// Macros to create and register the subsystem factory of type A
 /// Note: a call to this macro should be followed by a semi-colon!
 #define RegisterHandlerFactory(A) template<> const VQwDataHandlerFactory* MQwCloneable<VQwDataHandler,A>::fFactory = new QwFactory<VQwDataHandler,A>(#A)
+#define DeclareHandlerFactory(A) template<> const VQwDataHandlerFactory* MQwCloneable<VQwDataHandler,A>::fFactory
 
 /// Macros to create and register the subsystem factory of type A
 /// Note: a call to this macro should be followed by a semi-colon!
 #define RegisterSubsystemFactory(A) template<> const VQwSubsystemFactory* MQwCloneable<VQwSubsystem,A>::fFactory = new QwFactory<VQwSubsystem,A>(#A)
+#define DeclareSubsystemFactory(A) template<> const VQwSubsystemFactory* MQwCloneable<VQwSubsystem,A>::fFactory
 
 /// Macros to create and register the data element factory of type A
 /// Note: a call to this macro should be followed by a semi-colon!
 #define RegisterDataElementFactory(A) template<> const VQwDataElementFactory* MQwCloneable<VQwDataElement,A>::fFactory = new QwFactory<VQwDataElement,A>(#A)
 
 
-#endif // __QWFACTORY__
+#endif // QWFACTORY_H

@@ -123,7 +123,7 @@ void QwLog::ProcessOptions(QwOptions* options)
 
   // Set the list of regular expressions for functions to debug
   fDebugFunctionRegexString = options->GetValueVector<std::string>("QwLog.debug-function");
-  if (fDebugFunctionRegexString.size() > 0)
+  if (!fDebugFunctionRegexString.empty())
     std::cout << "Debug regex list:" << std::endl;
   for (size_t i = 0; i < fDebugFunctionRegexString.size(); i++) {
     std::cout << fDebugFunctionRegexString.back() << std::endl;
@@ -134,15 +134,15 @@ void QwLog::ProcessOptions(QwOptions* options)
 /*!
  *  Determine whether the function name matches a specified list of regular expressions
  */
-bool QwLog::IsDebugFunction(const string func_sig)
+bool QwLog::IsDebugFunction(const string& func_sig)
 {
   // If not in our cached list
   if (fIsDebugFunction.find(func_sig) == fIsDebugFunction.end()) {
     // Look through all regexes
     fIsDebugFunction[func_sig] = false;
-    for (size_t i = 0; i < fDebugFunctionRegexString.size(); i++) {
+    for (const auto & re_str : fDebugFunctionRegexString) {
       // When we find a match, cache it and break out
-      boost::regex regex(fDebugFunctionRegexString.at(i));
+      boost::regex regex(re_str);
       if (boost::regex_match(func_sig, regex)) {
         fIsDebugFunction[func_sig] = true;
         break;
@@ -154,11 +154,11 @@ bool QwLog::IsDebugFunction(const string func_sig)
 
 /*! Initialize the log file with name 'name'
  */
-void QwLog::InitLogFile(const string name, const std::ios_base::openmode mode)
+void QwLog::InitLogFile(const string& name, const std::ios_base::openmode mode)
 {
   if (fFile) {
     delete fFile;
-    fFile = 0;
+    fFile = nullptr;
   }
 
   std::ios_base::openmode flags = std::ios::out | mode;
@@ -191,7 +191,7 @@ void QwLog::SetFileThreshold(int thr)
  */
 QwLog& QwLog::operator()(
   const QwLogLevel level,
-  const std::string func_sig)
+  const std::string& func_sig)
 {
   // Set the log level of this sink
   fLogLevel = level;
@@ -331,7 +331,7 @@ std::ostream& QwLog::flush(std::ostream& strm)
  */
 const char* QwLog::GetTime()
 {
-  time_t now = time(0);
+  time_t now = time(nullptr);
   if (now >= 0) {
     struct tm *currentTime = localtime(&now);
     strftime(fTimeString, 128, "%Y-%m-%d, %T", currentTime);

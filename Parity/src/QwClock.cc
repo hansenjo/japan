@@ -343,56 +343,42 @@ void QwClock<T>::PrintInfo() const
 template<typename T>
 void QwClock<T>::ConstructHistograms(TDirectory *folder, TString &prefix)
 {
-  if (this->GetElementName()=="")
-    {
-      //  This channel is not used, so skip filling the histograms.
-    }
-  else
-    {
-      fClock.ConstructHistograms(folder, prefix);
-    }
-  return;
+  if( this->GetElementName() == "" ) {
+    //  This channel is not used, so skip filling the histograms.
+  } else {
+    fClock.ConstructHistograms(folder, prefix);
+  }
 }
 
 template<typename T>
 void QwClock<T>::FillHistograms()
 {
-  if (this->GetElementName()=="")
-    {
-      //  This channel is not used, so skip filling the histograms.
-    }
-  else
-    {
-      fClock.FillHistograms();
-    }
-
-
-  return;
-}
-
-template<typename T>
-void QwClock<T>::ConstructBranchAndVector(TTree *tree, TString &prefix, std::vector<Double_t> &values)
-{
-  if (this->GetElementName()==""){
-    //  This channel is not used, so skip
-  } else
-    {
-      fClock.ConstructBranchAndVector(tree, prefix,values);
-    }
-  return;
-}
-
-template<typename T>
-void  QwClock<T>::ConstructBranch(TTree *tree, TString &prefix)
-{
-  if (GetElementName()==""){
+  if( this->GetElementName() == "" ) {
     //  This channel is not used, so skip filling the histograms.
-  } else
-    {
-      fClock.ConstructBranch(tree, prefix);
-      // this functions doesn't do anything yet
-    }
-  return;
+  } else {
+    fClock.FillHistograms();
+  }
+}
+
+template<typename T>
+void QwClock<T>::ConstructBranchAndVector( TTree* tree, const TString& prefix, std::vector<Double_t>& values )
+{
+  if( this->GetElementName() == "" ) {
+    //  This channel is not used, so skip
+  } else {
+    fClock.ConstructBranchAndVector(tree, prefix, values);
+  }
+}
+
+template<typename T>
+void QwClock<T>::ConstructBranch( TTree* tree, TString& prefix )
+{
+  if( GetElementName() == "" ) {
+    //  This channel is not used, so skip filling the histograms.
+  } else {
+    fClock.ConstructBranch(tree, prefix);
+    // this functions doesn't do anything yet
+  }
 }
 
 template<typename T>
@@ -400,34 +386,30 @@ void  QwClock<T>::ConstructBranch(TTree *tree, TString &prefix, QwParameterFile&
 {
   TString devicename;
 
-  devicename=GetElementName();
+  devicename = GetElementName();
   devicename.ToLower();
-  if (GetElementName()==""){
+  if( GetElementName() == "" ) {
     //  This channel is not used, so skip filling the histograms.
-  } else
-    {
+  } else {
 
-      //QwMessage <<" QwClock "<<devicename<<QwLog::endl;
-      if (modulelist.HasValue(devicename)){
-	fClock.ConstructBranch(tree, prefix);
-	QwMessage <<" Tree leave added to "<<devicename<<QwLog::endl;
-      }
-      // this functions doesn't do anything yet
+    //QwMessage <<" QwClock "<<devicename<<QwLog::endl;
+    if( modulelist.HasValue(devicename) ) {
+      fClock.ConstructBranch(tree, prefix);
+      QwMessage << " Tree leave added to " << devicename << QwLog::endl;
     }
-  return;
+    // this functions doesn't do anything yet
+  }
 }
 
 template<typename T>
 void QwClock<T>::FillTreeVector(std::vector<Double_t> &values) const
 {
-  if (this->GetElementName()==""){
+  if( this->GetElementName() == "" ) {
     //  This channel is not used, so skip filling the histograms.
-  } else
-    {
-      fClock.FillTreeVector(values);
-      // this functions doesn't do anything yet
-    }
-  return;
+  } else {
+    fClock.FillTreeVector(values);
+    // this functions doesn't do anything yet
+  }
 }
 
 #ifdef __USE_DATABASE__
@@ -441,6 +423,6 @@ std::vector<QwDBInterface> QwClock<T>::GetDBEntry()
 }
 #endif // __USE_DATABASE__
 
-template class QwClock<QwVQWK_Channel>; 
-template class QwClock<QwSIS3801_Channel>; 
-template class QwClock<QwSIS3801D24_Channel>; 
+template class QwClock<QwVQWK_Channel>;
+template class QwClock<QwSIS3801_Channel>;
+template class QwClock<QwSIS3801D24_Channel>;

@@ -6,8 +6,8 @@
  */
 
 
-#ifndef __QWCOMBINERSUBSYSTEM__
-#define __QWCOMBINERSUBSYSTEM__
+#ifndef QWCOMBINERSUBSYSTEM_H
+#define QWCOMBINERSUBSYSTEM_H
 
 // Boost headers
 #include <boost/shared_ptr.hpp>
@@ -26,22 +26,22 @@ class QwParameterFile;
  *
  */
 
-class QwCombinerSubsystem: public VQwSubsystemParity, 
+class QwCombinerSubsystem: public VQwSubsystemParity,
   public MQwSubsystemCloneable<QwCombinerSubsystem>,
   public QwCombiner
 {
-  
+
   public:
       // Constructors
       /// \brief Constructor with just name.
-      QwCombinerSubsystem(const TString name)
-      : VQwSubsystem(name), VQwSubsystemParity(name), QwCombiner(name) { }
+      explicit QwCombinerSubsystem(const TString& name)
+        : VQwSubsystem(name), VQwSubsystemParity(name), QwCombiner(name) { }
 
       // Copy Constructor
       QwCombinerSubsystem(const QwCombinerSubsystem &source)
-      : VQwSubsystem(source), VQwSubsystemParity(source), QwCombiner(source) { }
-	
-      // Destructor 
+        : VQwSubsystem(source), VQwSubsystemParity(source), QwCombiner(source) { }
+
+      // Destructor
       ~QwCombinerSubsystem();
 
       boost::shared_ptr<VQwSubsystem> GetSharedPointerToStaticObject();
@@ -91,10 +91,10 @@ class QwCombinerSubsystem: public VQwSubsystemParity,
 
 
       /// \brief Derived functions
-      // not sure if there should be empty definition, no definition or defined 
-      Int_t LoadChannelMap(TString);
-      Int_t LoadInputParameters(TString);
-      Int_t LoadEventCuts(TString);
+      // not sure if there should be empty definition, no definition or defined
+      Int_t LoadChannelMap( const TString& );
+      Int_t LoadInputParameters( const TString& );
+      Int_t LoadEventCuts( const TString& );
       void ClearEventData(){
         for (size_t i = 0; i < fOutputVar.size(); ++i) {
           if (fOutputVar.at(i) != NULL) {
@@ -110,8 +110,8 @@ class QwCombinerSubsystem: public VQwSubsystemParity,
         }
         */
       };
-      Int_t ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
-	Int_t ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+      Int_t ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+      Int_t ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
       void ProcessEvent(){};
 
       Bool_t ApplySingleEventCuts();
@@ -125,19 +125,19 @@ class QwCombinerSubsystem: public VQwSubsystemParity,
       UInt_t GetEventcutErrorFlag();
 
 
-  private: 
-       
+  private:
+
      /**
-      * Default Constructor 
-      * 
-      * Error: tries to call default constructors of base class, 
+      * Default Constructor
+      *
+      * Error: tries to call default constructors of base class,
       * 	QwCombiner() is private
       */
-   //   QwCombinerSubsystem() {};     
+   //   QwCombinerSubsystem() {};
 
-      
+
 }; // class QwCombinerSubsystem
 
+DeclareSubsystemFactory(QwCombinerSubsystem);
 
-#endif // __QWCOMBINERSUBSYSTEM__
-
+#endif // QWCOMBINERSUBSYSTEM_H

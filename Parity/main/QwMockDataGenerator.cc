@@ -24,6 +24,8 @@
 #include "QwSubsystemArrayParity.h"
 #include "QwDetectorArray.h"
 
+template<> boost::variate_generator<boost::mt19937, boost::random::uniform_real_distribution<double>>
+  QwCombinedBCM<QwVQWK_Channel>::fRandomVariable;
 
 // Number of variables to correlate
 #define NVARS 3
@@ -33,7 +35,7 @@
 static const int kMultiplet = 4;
 
 // Beam trips on qwk_bcm0l03
-static const bool kBeamTrips = true;
+//static const bool kBeamTrips = true;
 
 // Debug
 static const bool kDebug = false;
@@ -136,7 +138,7 @@ if(1==2){
   maindetector->GetIntegrationPMT("MD3Neg")->AddRandomEventDriftParameters(3.0e6, 0, 60*Qw::Hz);
   maindetector->GetIntegrationPMT("MD3Neg")->AddRandomEventDriftParameters(6.0e5, 0, 120*Qw::Hz);
   maindetector->GetIntegrationPMT("MD3Neg")->AddRandomEventDriftParameters(4.5e5, 0, 240*Qw::Hz);
-  
+
 } //end if(1==2)
 */
 
@@ -165,8 +167,8 @@ if(1==2){
 
     // Open new output file
     // (giving run number as argument to OpenDataFile confuses the segment search)
-  
-    
+
+
     TString filename = Form("%sQwMock_%u.log", eventbuffer.GetDataDirectory().Data(), run);
     if (eventbuffer.OpenDataFile(filename,"W") != CODA_OK) {
       std::cout << "Error: could not open file!" << std::endl;

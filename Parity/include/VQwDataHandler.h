@@ -29,11 +29,11 @@ class QwDataHandlerArray;
 class VQwDataHandler:  virtual public VQwDataHandlerCloneable, public MQwPublishable_child<QwDataHandlerArray,VQwDataHandler> {
 
   public:
-  
+
     enum EQwHandleType {
       kHandleTypeUnknown=0, kHandleTypeMps, kHandleTypeAsym, kHandleTypeDiff, kHandleTypeYield
     };
-    
+
     typedef std::vector< VQwHardwareChannel* >::iterator Iterator_HdwChan;
     typedef std::vector< VQwHardwareChannel* >::const_iterator ConstIterator_HdwChan;
 
@@ -52,14 +52,14 @@ class VQwDataHandler:  virtual public VQwDataHandlerCloneable, public MQwPublish
     };
 
     virtual Int_t ConnectChannels(QwSubsystemArrayParity& yield, QwSubsystemArrayParity& asym, QwSubsystemArrayParity& diff){
-      return this->ConnectChannels(asym, diff);
+      return ConnectChannels(asym, diff);
     }
 
     // Subsystems with support for subsystem arrays should override this
     virtual Int_t ConnectChannels(QwSubsystemArrayParity& detectors) { return 0; }
 
     Int_t ConnectChannels(QwHelicityPattern& helicitypattern) {
-      return this->ConnectChannels(
+      return ConnectChannels(
           helicitypattern.GetYield(),
           helicitypattern.GetAsymmetry(),
           helicitypattern.GetDifference());
@@ -108,7 +108,7 @@ class VQwDataHandler:  virtual public VQwDataHandlerCloneable, public MQwPublish
       run_label = x;
     }
 
-    Int_t LoadChannelMap(){return this->LoadChannelMap(fMapFile);}
+    Int_t LoadChannelMap(){return LoadChannelMap(fMapFile);}
     virtual Int_t LoadChannelMap(const std::string& mapfile){return 0;};
 
     /// \brief Publish all variables of the subsystem
@@ -117,11 +117,11 @@ class VQwDataHandler:  virtual public VQwDataHandlerCloneable, public MQwPublish
     virtual Bool_t PublishByRequest(TString device_name);
 
   protected:
-    
+
     VQwDataHandler() { }
-    
+
     virtual Int_t ConnectChannels(QwSubsystemArrayParity& asym, QwSubsystemArrayParity& diff);
-    
+
     void SetEventcutErrorFlagPointer(const UInt_t* errorflagptr) {
       fErrorFlagPtr = errorflagptr;
     }

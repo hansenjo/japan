@@ -5,8 +5,8 @@
 * Time-stamp: <2007-05-08 15:40>                           *
 \**********************************************************/
 
-#ifndef __QWPARAMETERFILE__
-#define __QWPARAMETERFILE__
+#ifndef QWPARAMETERFILE_H
+#define QWPARAMETERFILE_H
 
 
 // System headers
@@ -48,9 +48,9 @@ class QwParameterFile {
 
   public:
 
-    QwParameterFile(const std::string& filename);
-    QwParameterFile(const std::stringstream& stream);
-    virtual ~QwParameterFile() { };
+    explicit QwParameterFile(const std::string& filename);
+    explicit QwParameterFile(const std::stringstream& stream);
+    virtual ~QwParameterFile() = default;
 
     /// Access the streambuf pointer in the same way as on a std::ifstream
     std::streambuf* rdbuf() const {return fStream.rdbuf(); };
@@ -62,11 +62,11 @@ class QwParameterFile {
     static void SetCurrentRunNumber(const UInt_t runnumber) { fCurrentRunNumber = runnumber; };
 
     /// Set various sets of special characters
-    void SetCommentChars(const std::string value)    { fCommentChars = value; };
-    void SetWhitespaceChars(const std::string value) { fWhitespaceChars = value; };
-    void SetTokenSepChars(const std::string value)   { fTokenSepChars = value; };
-    void SetSectionChars(const std::string value)    { fSectionChars = value; };
-    void SetModuleChars(const std::string value)     { fModuleChars = value; };
+    void SetCommentChars(const std::string& value)    { fCommentChars = value; };
+    void SetWhitespaceChars(const std::string& value) { fWhitespaceChars = value; };
+    void SetTokenSepChars(const std::string& value)   { fTokenSepChars = value; };
+    void SetSectionChars(const std::string& value)    { fSectionChars = value; };
+    void SetModuleChars(const std::string& value)     { fModuleChars = value; };
 
     Bool_t ReadNextLine() {
       fCurrentPos = 0;
@@ -79,12 +79,12 @@ class QwParameterFile {
       else           status = ReadNextLine_Single(varvalue);
       return status;
     }
-    Bool_t ReadNextLine_Greedy(std::string &varvalue);  
+    Bool_t ReadNextLine_Greedy(std::string &varvalue);
     Bool_t ReadNextLine_Single(std::string &varvalue) {
       fCurrentPos = 0;
       if (! getline(fStream, fLine))
         // No next line
-        return 0;
+        return false;
       else {
         // Copy next line
         varvalue = fLine;
@@ -96,27 +96,27 @@ class QwParameterFile {
             static int nested_depth = 0;
             if (nested_depth++ > 5) {
               std::cout << "Parameter file recursion not allowed!" << std::endl;
-              return 0;
+              return false;
             }
             // Stream nested file into this file
-            QwParameterFile nested_file(tmpvalue.c_str());
+            QwParameterFile nested_file(tmpvalue);
             fStream << nested_file.rdbuf();
             // Read line from appended file
             return ReadNextLine(varvalue);
           }
         }
-        return 1;
+        return true;
       }
     };
 
     void TrimWhitespace(TString::EStripType head_tail = TString::kBoth);
-    void TrimComment(const char commentchar);
+    void TrimComment(char commentchar);
     void TrimComment(const std::string& commentchars);
     void TrimComment() { TrimComment(fCommentChars); };
     void TrimSectionHeader();
     void TrimModuleHeader();
 
-    TString LastString(TString in, char* delim);
+    static TString LastString(const TString& in, const char* delim);
     TString GetParameterFileContents();
 
     Bool_t LineIsEmpty(){return fLine.empty();};
@@ -138,7 +138,7 @@ class QwParameterFile {
     void RewindToFileStart() { fStream.clear(); fStream.seekg(0, std::ios::beg); };
     void RewindToLineStart() { fCurrentPos = 0; };
 
-    Bool_t HasValue(TString& vname);
+    Bool_t HasValue( TString vname );
 
     Bool_t HasVariablePair(const std::string& separatorchars, std::string& varname, std::string& varvalue);
     Bool_t HasVariablePair(const std::string& separatorchars, TString& varname, TString& varvalue);
@@ -150,7 +150,7 @@ class QwParameterFile {
       std::string strvalue;
       Bool_t status = FileHasVariablePair(separatorchars, varname, strvalue);
       if (status){
-	varvalue = ConvertValue<T>(strvalue);
+        varvalue = ConvertValue<T>(strvalue);
       }
       return status;
     }
@@ -172,13 +172,13 @@ class QwParameterFile {
     ///  \brief Skips from the beginning of the section
     ///  'secname' until the first section that does not
     ///  have that name.
-    Bool_t SkipSection(std::string secname);
+    Bool_t SkipSection(const std::string& secname);
 
     /// \brief Rewinds to the start and read until it finds next section header
     QwParameterFile* ReadSectionPreamble();
-    QwParameterFile* ReadUntilNextSection(const bool add_current_line = false);
-    QwParameterFile* ReadNextSection(std::string &secname, const bool keep_header = false);
-    QwParameterFile* ReadNextSection(TString &secname, const bool keep_header = false);
+    QwParameterFile* ReadUntilNextSection(bool add_current_line = false);
+    QwParameterFile* ReadNextSection(std::string &secname, bool keep_header = false);
+    QwParameterFile* ReadNextSection(TString &secname, bool keep_header = false);
     QwParameterFile* ReadNextSection(const bool keep_header = false) {
       std::string dummy;
       return ReadNextSection(dummy, keep_header);
@@ -186,7 +186,7 @@ class QwParameterFile {
 
     /// \brief Rewinds to the start and read until it finds next module header
     QwParameterFile* ReadModulePreamble();
-    QwParameterFile* ReadUntilNextModule(const bool add_current_line = false);
+    QwParameterFile* ReadUntilNextModule(bool add_current_line = false);
     QwParameterFile* ReadNextModule(std::string &secname, bool keep_header = false);
     QwParameterFile* ReadNextModule(TString &secname, bool keep_header = false);
     QwParameterFile* ReadNextModule(const bool keep_header = false) {
@@ -197,11 +197,11 @@ class QwParameterFile {
     friend std::ostream& operator<< (std::ostream& stream, const QwParameterFile& file);
 
 
-    const TString GetParamFilename() {return fBestParamFileName;};
-    const TString GetParamFilenameAndPath() {return fBestParamFileNameAndPath;};
+    TString GetParamFilename() {return fBestParamFileName;};
+    TString GetParamFilenameAndPath() {return fBestParamFileNameAndPath;};
 
-    const std::pair<TString, TString> GetParamFileNameContents() {
-      return std::pair<TString, TString>(GetParamFilename(), GetParameterFileContents());
+    std::pair<TString, TString> GetParamFileNameContents() {
+      return {GetParamFilename(), GetParameterFileContents()};
     };
 
     void SetParamFilename();
@@ -219,29 +219,29 @@ class QwParameterFile {
       return status;
     };
 
-    template <typename T> 
-      Bool_t ReturnValue(const std::string keyname, T &retvalue){
+    template <typename T>
+      Bool_t ReturnValue( const std::string& keyname, T &retvalue){
       std::string value;
       Bool_t status = GetKeyValue(keyname, value);
       if (status){
-	retvalue = ConvertValue<T>(value);
+        retvalue = ConvertValue<T>(value);
       }
       return status;
     }
-    template <typename T> 
-      Bool_t PopValue(const std::string keyname, T &retvalue){
+    template <typename T>
+      Bool_t PopValue( const std::string& keyname, T &retvalue){
       std::string value;
       Bool_t status = GetKeyValue(keyname, value, kTRUE);
       if (status){
-	retvalue = ConvertValue<T>(value);
+        retvalue = ConvertValue<T>(value);
       }
       return status;
     };
 
-    
+
 
   protected:
-    void Trim(const std::string& chars, std::string& token, TString::EStripType head_tail = TString::kBoth);
+    static void Trim(const std::string& chars, std::string& token, TString::EStripType head_tail = TString::kBoth);
     void TrimWhitespace(std::string &token, TString::EStripType head_tail);
 
   public:
@@ -249,7 +249,7 @@ class QwParameterFile {
     template <typename T>
     T ConvertValue(const std::string& value) {
       T retvalue;
-      if (value.size() == 0) {
+      if (value.empty()) {
         retvalue = 0; // and pray
       } else {
         std::istringstream stream1;
@@ -262,7 +262,7 @@ class QwParameterFile {
   private:
 
     /// Find the first file in a directory that conforms to the run label
-    int FindFile(const bfs::path& dir_path,    // in this directory,
+    static int FindFile(const bfs::path& dir_path,    // in this directory,
                  const std::string& file_stem, // search for this stem,
                  const std::string& file_ext,  // search for this extension,
                  bfs::path& path_found);       // placing path here if found
@@ -316,17 +316,18 @@ class QwParameterFile {
 
  protected:
 
-    Bool_t GetKeyValue(const std::string keyname, std::string &retvalue,
-		       Bool_t should_erase = kFALSE){
+    Bool_t GetKeyValue(const std::string& keyname, std::string &retvalue,
+		       Bool_t should_erase = kFALSE)
+    {
       Bool_t status = kFALSE;
       std::map<std::string,std::string>::iterator it;
       it = fKeyValuePair.find(keyname);
       if (it != fKeyValuePair.end()) {
-	status = kTRUE;
-	retvalue = (*it).second;
-	if (should_erase){
-	  fKeyValuePair.erase(it);
-	}
+        status = kTRUE;
+        retvalue = (*it).second;
+        if (should_erase){
+          fKeyValuePair.erase(it);
+        }
       }
       return status;
     }
@@ -401,7 +402,7 @@ inline bool QwParameterFile::ConvertValue<bool>(const std::string& value) {
 
 template <>
 inline TString QwParameterFile::ConvertValue<TString>(const std::string& value) {
-  return TString(value.c_str());
+  return {value.c_str()};
 }
 
-#endif // __QWPARAMETERFILE__
+#endif // QWPARAMETERFILE_H

@@ -33,16 +33,16 @@ class VQwClock : public VQwDataElement {
   /***************************************************************
    *  Class:  VQwClock
    *          Pure Virtual base class for the clocks in the datastream
-   *          Through use of the Create factory function, one can 
+   *          Through use of the Create factory function, one can
    *          get a concrete instance of a templated QwClock.
    *
    ***************************************************************/
 public:
-  VQwClock() { }; // Do not use this function!!
+  VQwClock() = default; // Do not use this function!!
   VQwClock(const VQwClock& source)
   : VQwDataElement(source)
   { }
-  virtual ~VQwClock() {};
+  virtual ~VQwClock() = default;
 
   // VQwDataElement virtual functions
   virtual Int_t ProcessEvBuffer(UInt_t* buffer, UInt_t word_position_in_buffer, UInt_t subelement=0) = 0;
@@ -69,7 +69,7 @@ public:
   virtual void CalculateRunningAverage() = 0;
   virtual void AccumulateRunningSum(const VQwClock& value, Int_t count=0, Int_t ErrorMask=0xFFFFFFF) = 0;
   virtual void DeaccumulateRunningSum(VQwClock& value, Int_t ErrorMask=0xFFFFFFF) = 0;
-  virtual void ConstructBranchAndVector(TTree *tree, TString &prefix, std::vector<Double_t> &values) = 0;
+  virtual void ConstructBranchAndVector( TTree *tree, const TString& prefix, std::vector<Double_t> &values) = 0;
   virtual void ConstructBranch(TTree *tree, TString &prefix) = 0;
   virtual void ConstructBranch(TTree *tree, TString &prefix, QwParameterFile& modulelist) = 0;
   virtual void FillTreeVector(std::vector<Double_t> &values) const = 0;

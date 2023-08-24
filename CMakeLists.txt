@@ -104,8 +104,8 @@ list(APPEND my_project_sources ${POST_CONFIGURE_FILE})
 set_compiler_flags("${ROOT_CXX_FLAGS}")
 #set_diagnostic_flags(WALL WEXTRA)
 set_diagnostic_flags(WALL)
+#set(EXTRA_DIAG_FLAGS -Wno-overloaded-virtual -Wno-infinite-recursion)
 report_build_info()
-
 
 #----------------------------------------------------------------------------
 # evio library
@@ -163,6 +163,7 @@ target_compile_options(${PROJECT_NAME}
     ${${PROJECT_NAME_UC}_CXX_FLAGS_LIST}
   PRIVATE
     ${${PROJECT_NAME_UC}_DIAG_FLAGS_LIST}
+    ${EXTRA_DIAG_FLAGS}
   )
 
 target_link_libraries(${PROJECT_NAME}
@@ -204,6 +205,7 @@ foreach(file ${exefiles})
       ${${PROJECT_NAME_UC}_CXX_FLAGS_LIST}
     PRIVATE
       ${${PROJECT_NAME_UC}_DIAG_FLAGS_LIST}
+      ${EXTRA_DIAG_FLAGS}
   )
   if(${CMAKE_SYSTEM_NAME} MATCHES Linux)
     target_compile_options(${filelower} PUBLIC -fPIC)
@@ -236,4 +238,3 @@ endif()
 # cmake config
 #
 add_subdirectory(cmake)
-

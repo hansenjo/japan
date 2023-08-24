@@ -4,8 +4,8 @@
 * Author: P. M. King, W. Deconinck, B. Michaels            *
 \**********************************************************/
 
-#ifndef __QwADC18_CHANNEL__
-#define __QwADC18_CHANNEL__
+#ifndef QwADC18_CHANNEL_H
+#define QwADC18_CHANNEL_H
 
 // System headers
 #include <vector>
@@ -75,7 +75,7 @@ class QwADC18_Channel: public VQwHardwareChannel, public MQwMockable {
   {
     *this = value;
   };
-  virtual ~QwADC18_Channel() { };
+  virtual ~QwADC18_Channel() = default;
 
   using VQwHardwareChannel::Clone;
 
@@ -155,8 +155,8 @@ class QwADC18_Channel: public VQwHardwareChannel, public MQwMockable {
 
   void AccumulateRunningSum(const QwADC18_Channel& value, Int_t count=0, Int_t ErrorMask=0xFFFFFFF);
   void AccumulateRunningSum(const VQwHardwareChannel *value, Int_t count=0, Int_t ErrorMask=0xFFFFFFF){
-    const QwADC18_Channel *tmp_ptr = dynamic_cast<const QwADC18_Channel*>(value);
-    if (tmp_ptr != NULL) AccumulateRunningSum(*tmp_ptr, count, ErrorMask);
+    const auto *tmp_ptr = dynamic_cast<const QwADC18_Channel*>(value);
+    if (tmp_ptr) AccumulateRunningSum(*tmp_ptr, count, ErrorMask);
   };
   ////deaccumulate one value from the running sum
   inline void DeaccumulateRunningSum(const QwADC18_Channel& value, Int_t ErrorMask=0xFFFFFFF){
@@ -188,7 +188,7 @@ class QwADC18_Channel: public VQwHardwareChannel, public MQwMockable {
   }
 
   // Get the absolute staturation limit in volts
-  Double_t GetADC18SaturationLimt(){
+  Double_t GetADC18SaturationLimt() const{
     return fSaturationABSLimit;
   }
 
@@ -209,8 +209,8 @@ class QwADC18_Channel: public VQwHardwareChannel, public MQwMockable {
   void  ConstructHistograms(TDirectory *folder, TString &prefix);
   void  FillHistograms();
 
-  void  ConstructBranchAndVector(TTree *tree, TString &prefix, std::vector<Double_t> &values);
-  void  ConstructBranch(TTree *tree, TString &prefix);
+  void  ConstructBranchAndVector( TTree *tree, const TString& prefix, std::vector<Double_t> &values);
+  void  ConstructBranch( TTree *tree, const TString& prefix);
   void  FillTreeVector(std::vector<Double_t> &values) const;
 
   Double_t GetAverageVolts() const;
@@ -275,7 +275,7 @@ class QwADC18_Channel: public VQwHardwareChannel, public MQwMockable {
   QwADC18_Channel* fRunningSum;
 
   /// Pointer to the DAC channel for this channel
-  QwADC18_Channel* fDAC;
+  //QwADC18_Channel* fDAC;
 
   /*! \name ADC Calibration                    */
   // @{
@@ -301,14 +301,14 @@ class QwADC18_Channel: public VQwHardwareChannel, public MQwMockable {
   Int_t fErrorCount_SameHW;   ///< check to see ADC returning same HW value
   Int_t fErrorCount_ZeroHW;   ///< check to see ADC returning zero
 
-  Int_t fNumEvtsWithEventCutsRejected; ///< Counts the Event cut rejected events 
+  Int_t fNumEvtsWithEventCutsRejected; ///< Counts the Event cut rejected events
 
 
 
-  Int_t fADC_Same_NumEvt; ///< Keep track of how many events with same ADC value returned
+  //Int_t fADC_Same_NumEvt; ///< Keep track of how many events with same ADC value returned
   Int_t fSequenceNo_Prev; ///< Keep the sequence number of the last event
   Int_t fSequenceNo_Counter; ///< Internal counter to keep track of the sequence number
-  Double_t fPrev_HardwareBlockSum; ///< Previous Module-based sum of the four sub-blocks
+  //Double_t fPrev_HardwareBlockSum; ///< Previous Module-based sum of the four sub-blocks
 
 
 
@@ -318,13 +318,13 @@ class QwADC18_Channel: public VQwHardwareChannel, public MQwMockable {
   const static Bool_t bDEBUG=kFALSE;///<debugging display purposes
 
   ///<For ADC18 data element trimming uses
-  Bool_t bHw_sum;
-  Bool_t bHw_sum_raw;
-  Bool_t bBlock;
-  Bool_t bBlock_raw;
-  Bool_t bNum_samples;
-  Bool_t bDevice_Error_Code;
-  Bool_t bSequence_number;
+  //Bool_t bHw_sum;
+  //Bool_t bHw_sum_raw;
+  //Bool_t bBlock;
+  //Bool_t bBlock_raw;
+  //Bool_t bNum_samples;
+  //Bool_t bDevice_Error_Code;
+  //Bool_t bSequence_number;
 
 };
 

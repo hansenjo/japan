@@ -6,10 +6,11 @@
  * \date   2007-05-08 15:40
  */
 
-#ifndef __VQWDATAELEMENT__
-#define __VQWDATAELEMENT__
+#ifndef VQWDATAELEMENT_H
+#define VQWDATAELEMENT_H
 
 // System headers
+#include <utility>
 #include <vector>
 #include <iostream>
 
@@ -80,7 +81,7 @@ class VQwDataElement: public MQwHistograms {
     fErrorConfigFlag(value.fErrorConfigFlag)
     { };
   /// Virtual destructor
-  virtual ~VQwDataElement() { };
+  virtual ~VQwDataElement() = default;
 
   /*! \brief Is the name of this element empty? */
   Bool_t IsNameEmpty() const { return fElementName.IsNull(); }
@@ -103,11 +104,11 @@ class VQwDataElement: public MQwHistograms {
   virtual Int_t ProcessEvBuffer(UInt_t* buffer, UInt_t num_words_left, UInt_t subelement=0) = 0;
 
   /*! \brief Get the number of data words in this data element */
-  size_t GetNumberOfDataWords() {return fNumberOfDataWords;}
+  size_t GetNumberOfDataWords() const {return fNumberOfDataWords;}
 
   UInt_t GetGoodEventCount() const { return fGoodEventCount; };
 
-  
+
   virtual void AssignValueFrom(const VQwDataElement* valueptr){
     std::cerr << "Operation AssignValueFrom not defined!" << std::endl;
   };
@@ -169,13 +170,13 @@ class VQwDataElement: public MQwHistograms {
   // to an external clock
   virtual void SetNeedsExternalClock(Bool_t needed) {};   // Default is No!
   virtual Bool_t NeedsExternalClock() { return kFALSE; }; // Default is No!
-  virtual std::string GetExternalClockName() {  return ""; }; // Default is none
-  virtual void SetExternalClockPtr( const VQwHardwareChannel* clock) {};
-  virtual void SetExternalClockName( const std::string name) {};
-  virtual Double_t GetNormClockValue() { return 1.;}
+  virtual std::string GetExternalClockName() { return {}; }; // Default is none
+  virtual void SetExternalClockPtr( const VQwHardwareChannel* clock) {}
+  virtual void SetExternalClockName( const std::string& name) {}
+  virtual Double_t GetNormClockValue() { return 1.; }
 
-  
-  
+
+
   /*! \brief Return the name of the inheriting subsystem name*/
   TString GetSubsystemName() const {
     return fSubsystemName;
@@ -183,9 +184,9 @@ class VQwDataElement: public MQwHistograms {
 
    /*! \brief Set the name of the inheriting subsystem name*/
   void SetSubsystemName(TString sysname){
-    fSubsystemName=sysname;
+    fSubsystemName=std::move(sysname);
   }
-  
+
    /*! \brief Return the type of the beam instrument*/
   TString GetModuleType() const {
     return fModuleType;
@@ -193,12 +194,12 @@ class VQwDataElement: public MQwHistograms {
 
    /*! \brief set the type of the beam instrument*/
   void SetModuleType(TString ModuleType){
-    fModuleType=ModuleType;
+    fModuleType=std::move(ModuleType);
   }
 
  protected:
   /*! \brief Set the number of data words in this data element */
-  void SetNumberOfDataWords(const UInt_t &numwords) {fNumberOfDataWords = numwords;}
+  void SetNumberOfDataWords(const UInt_t numwords) {fNumberOfDataWords = numwords;}
 
   /// Arithmetic assignment operator:  Should only copy event-based data
   virtual VQwDataElement& operator=(const VQwDataElement& value) {
@@ -233,4 +234,4 @@ class VQwDataElement: public MQwHistograms {
 //@}
 }; // class VQwDataElement
 
-#endif // __VQWDATAELEMENT__
+#endif // VQWDATAELEMENT_H

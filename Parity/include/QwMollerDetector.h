@@ -10,8 +10,8 @@
  */
 
 
-#ifndef __QwMollerDetector__
-#define __QwMollerDetector__
+#ifndef QwMollerDetector_h
+#define QwMollerDetector_h
 
 // System headers
 #include <vector>
@@ -31,8 +31,9 @@
 class QwMollerChannelID
 {
   public:
-  QwMollerChannelID():fIndex(-1),fSubbankIndex(-1),fWordInSubbank(0),
-    fChannelNumber(-1),fModuleType(""),fChannelName(""),fDetectorType(""){};
+  QwMollerChannelID()
+    : fIndex(-1), fSubbankIndex(-1), fWordInSubbank(0), fChannelNumber(-1),
+    fModuleType(""), fChannelName(""), fDetectorType("") {}
 
   int fIndex;  // index of this detector in the vector containing all the detector of same type
   int fSubbankIndex;
@@ -48,7 +49,7 @@ class QwMollerChannelID
   TString fChannelName;
   TString fDetectorType;
 
-  void Print(){
+  void Print() const {
     QwMessage << "***************************************" << std::endl;
     QwMessage << " QwMoller channel: " << fChannelName << std::endl;
     QwMessage << " Detector Type: " << fDetectorType << std::endl;
@@ -63,14 +64,11 @@ class QwMollerDetector:
   public VQwSubsystemParity,
   public MQwSubsystemCloneable<QwMollerDetector> {
 
-  private:
-    /// Private default constructor (not implemented, will throw linker error on use)
-    QwMollerDetector();
-
   public:
-
+    /// No default constructor
+    QwMollerDetector() = delete;
     /// Constructor with name
-    QwMollerDetector(const TString& name)
+    explicit QwMollerDetector(const TString& name)
     : VQwSubsystem(name), VQwSubsystemParity(name)
     { };
     /// Copy constructor
@@ -79,18 +77,18 @@ class QwMollerDetector:
       fSTR7200_Channel(source.fSTR7200_Channel)
     { }
     /// Virtual destructor
-    virtual ~QwMollerDetector() { };
+    virtual ~QwMollerDetector() = default;
 
     /* derived from VQwSubsystem */
     void ProcessOptions(QwOptions &options); //Handle command line options
-    Int_t LoadChannelMap(TString mapfile);
-    Int_t LoadInputParameters(TString pedestalfile);
+    Int_t LoadChannelMap( const TString& mapfile);
+    Int_t LoadInputParameters( const TString& pedestalfile);
     Int_t LoadEventCuts(TString & filename);
     Bool_t SingleEventCuts();
-    Int_t ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
-    Int_t ProcessConfigurationBuffer(UInt_t ev_type, const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
-    Int_t ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t *buffer, UInt_t num_words);
-    Int_t ProcessEvBuffer(UInt_t ev_type, const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+    Int_t ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+    Int_t ProcessConfigurationBuffer(UInt_t ev_type, ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+    Int_t ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t *buffer, UInt_t num_words);
+    Int_t ProcessEvBuffer(UInt_t ev_type, ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
     void  ClearEventData();
     void  ProcessEvent();
 
@@ -110,7 +108,7 @@ class QwMollerDetector:
     void DeaccumulateRunningSum(VQwSubsystem* value, Int_t ErrorMask=0xFFFFFFF){
     };
     void  CalculateRunningAverage();
-    Int_t LoadEventCuts(TString filename);
+    Int_t LoadEventCuts( const TString& filename);
     Bool_t  ApplySingleEventCuts();
     void IncrementErrorCounters() {};
     void PrintErrorCounters() const;
@@ -135,11 +133,11 @@ class QwMollerDetector:
     void PrintValue() const;
     float* GetRawChannelArray();
 
-    Int_t GetChannelIndex(TString channelName, UInt_t module_number); 
+    Int_t GetChannelIndex(TString channelName, UInt_t module_number);
     float GetDataForChannelInModule(Int_t module_number, Int_t channel_index){
       return fSTR7200_Channel[module_number][channel_index].GetValue();
     }
-      
+
     float GetDataForChannelInModule(Int_t module_number, TString channel_name){
       return GetDataForChannelInModule(module_number, GetChannelIndex(channel_name,module_number));
     }
@@ -147,7 +145,7 @@ class QwMollerDetector:
   protected:
     //Array of ChannelIDs which contain the map file
     std::vector<QwMollerChannelID> fMollerChannelID;
-    
+
     //the running total scaler structure
     std::vector< std::vector<QwSTR7200_Channel> > fSTR7200_Channel;
     std::vector< std::vector<QwSTR7200_Channel> > fPrevious_STR7200_Channel;
@@ -159,4 +157,4 @@ class QwMollerDetector:
 
 };
 
-#endif // __QwMollerDetector__
+#endif // QwMollerDetector_h

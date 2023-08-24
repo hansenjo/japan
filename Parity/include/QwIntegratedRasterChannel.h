@@ -5,8 +5,8 @@
 * Time-stamp:                                             *
 \**********************************************************/
 
-#ifndef __QwIntegratedRasterChannel__
-#define __QwIntegratedRasterChannel__
+#ifndef QwIntegratedRasterChannel_h
+#define QwIntegratedRasterChannel_h
 
 // System headers
 #include <vector>
@@ -87,7 +87,7 @@ class QwIntegratedRasterChannel : public VQwDataElement{
   void PrintValue() const;
   void PrintInfo() const;
 
-  
+
   QwIntegratedRasterChannel& operator=  (const QwIntegratedRasterChannel &value);
   QwIntegratedRasterChannel& operator+= (const QwIntegratedRasterChannel &value);
   QwIntegratedRasterChannel& operator-= (const QwIntegratedRasterChannel &value);

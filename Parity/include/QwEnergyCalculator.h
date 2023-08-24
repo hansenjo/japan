@@ -64,7 +64,7 @@ class QwEnergyCalculator : public VQwDataElement{
     TString GetSubElementName(Int_t index) {return fDevice.at(index)->GetElementName();};
     void    LoadMockDataParameters(QwParameterFile &paramfile);
 //------------------------------------------------------------------------------------
-    
+
     void    ClearEventData();
     Int_t   ProcessEvBuffer(UInt_t* buffer,
 			    UInt_t word_position_in_buffer,UInt_t indexnumber);
@@ -92,7 +92,7 @@ class QwEnergyCalculator : public VQwDataElement{
     UInt_t   UpdateErrorFlag();
 
     void    UpdateErrorFlag(const QwEnergyCalculator *ev_error);
-  
+
 
     void    Set(const VQwBPM* device,TString type, TString property ,Double_t tmatrix_ratio);
     void    Ratio(QwEnergyCalculator &numer,QwEnergyCalculator &denom);
@@ -136,7 +136,7 @@ class QwEnergyCalculator : public VQwDataElement{
     std::vector <Double_t> fTMatrixRatio;
     std::vector <TString>  fProperty;
     std::vector <TString>  fType;
-    Int_t    fDeviceErrorCode;//keep the device HW status using a unique code from the QwVQWK_Channel::fDeviceErrorCode
+//    Int_t    fDeviceErrorCode;//keep the device HW status using a unique code from the QwVQWK_Channel::fDeviceErrorCode
     Bool_t bEVENTCUTMODE;//If this set to kFALSE then Event cuts do not depend on HW ckecks. This is set externally through the qweak_beamline_eventcuts.map
     Bool_t   bFullSave; // used to restrict the amount of data histogramed
 

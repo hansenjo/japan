@@ -30,14 +30,14 @@ RegisterSubsystemFactory(QwMollerDetector);
  * @return Zero if successful
  */
 
-Int_t QwMollerDetector::LoadChannelMap(TString mapfile)
+Int_t QwMollerDetector::LoadChannelMap( const TString& mapfile)
 {
   TString varname, varvalue;
   TString modtype, dettype, name, keyword;
   Int_t modnum, channum;
   Int_t wordsofar = 0;
   Int_t currentsubbankindex = -1;
-  
+
   QwParameterFile mapstr(mapfile.Data());  // Open the file
   fDetectorMapsNames.push_back(mapstr.GetParamFilename());
   while (mapstr.ReadNextLine()) {
@@ -47,9 +47,9 @@ Int_t QwMollerDetector::LoadChannelMap(TString mapfile)
 
     if (mapstr.HasVariablePair("=", varname, varvalue)) {
       // This is a declaration line.  Decode it.
-      
+
       varname.ToLower();
-      UInt_t value = QwParameterFile::GetUInt(varvalue);
+//      UInt_t value = QwParameterFile::GetUInt(varvalue);
 
       RegisterRocBankMarker(mapstr);
       if(currentsubbankindex != GetSubbankIndex(fCurrentROC_ID,fCurrentBank_ID)){
@@ -74,7 +74,7 @@ Int_t QwMollerDetector::LoadChannelMap(TString mapfile)
       newChannelID.fDetectorType  = dettype;
       newChannelID.fChannelNumber = channum;
       newChannelID.fWordInSubbank = wordsofar;
-       
+
       if (modtype == "SIS3801"){
         wordsofar += 1;
       }else if(modtype == "SIS7200"){
@@ -90,7 +90,7 @@ Int_t QwMollerDetector::LoadChannelMap(TString mapfile)
         lineok = kFALSE;
       }
 
-//    add new modules until current number (modnum) is reached 
+//    add new modules until current number (modnum) is reached
       std::size_t chan_size;
       chan_size = fSTR7200_Channel.size();
       while ((Int_t) chan_size <= modnum) {
@@ -98,7 +98,7 @@ Int_t QwMollerDetector::LoadChannelMap(TString mapfile)
         fSTR7200_Channel.push_back(new_module);
       }
 
-      //change this line if names are supposed to be exclusive, as of now, 
+      //change this line if names are supposed to be exclusive, as of now,
       newChannelID.fIndex = -1; // GetChannelIndex(name, modnum);
 
       if (newChannelID.fIndex == -1 && lineok){
@@ -126,7 +126,7 @@ Int_t QwMollerDetector::LoadChannelMap(TString mapfile)
 }
 
 void QwMollerDetector::ProcessOptions(QwOptions &){}
-Int_t QwMollerDetector::LoadInputParameters(TString){ return 0;}
+Int_t QwMollerDetector::LoadInputParameters( const TString& ){ return 0;}
 void QwMollerDetector::ClearEventData(){}
 
 
@@ -242,7 +242,7 @@ VQwSubsystem&  QwMollerDetector::operator=(VQwSubsystem *value){
       }
     }
   }
-  return *this; 
+  return *this;
 }
 
 VQwSubsystem&  QwMollerDetector::operator+=(VQwSubsystem *value){
@@ -329,7 +329,7 @@ void QwMollerDetector::CalculateRunningAverage(){
   }
 }
 
-Int_t QwMollerDetector::LoadEventCuts(TString filename){return 0;}
+Int_t QwMollerDetector::LoadEventCuts( const TString& filename){return 0;}
 
 Bool_t QwMollerDetector::ApplySingleEventCuts(){
   std::cout << "QwMoller::ApplySingleEventCuts() ";
@@ -370,7 +370,7 @@ float* QwMollerDetector::GetRawChannelArray(){
     }
   }
   float *result = new float[len];
-  
+
   //float result[96];
 
   int n = 0;
@@ -380,7 +380,7 @@ float* QwMollerDetector::GetRawChannelArray(){
     }
     n=fSTR7200_Channel[i].size();
   }
- 
+
   return result;
 }
 
@@ -411,7 +411,7 @@ Int_t QwMollerDetector::GetChannelIndex(TString channelName, UInt_t module_numbe
 
 Bool_t QwMollerDetector::Compare(VQwSubsystem *source){
   //std::cout << "Beginning QwMollerDetector::Compare" << std::endl;
-  
+
   if (source == 0) return kFALSE;
 
   Bool_t result = kTRUE;

@@ -1,5 +1,5 @@
-#ifndef __MQWPUBLISHABLE__
-#define __MQWPUBLISHABLE__
+#ifndef MQWPUBLISHABLE_H
+#define MQWPUBLISHABLE_H
 
 // System headers
 #include <map>
@@ -12,15 +12,18 @@
 
 template<class U, class T>
 class MQwPublishable_child {
+ public:
 
-  public:
+  MQwPublishable_child() {
+    fSelf = dynamic_cast<T*>(this);
+  }
+  MQwPublishable_child( const MQwPublishable_child& source ) {
+    fSelf = dynamic_cast<T*>(this);
+  };
+  virtual ~MQwPublishable_child() = default;
 
-  MQwPublishable_child() {fSelf = dynamic_cast<T*>(this); };
-  MQwPublishable_child(const MQwPublishable_child& source) {fSelf = dynamic_cast<T*>(this);};
-
-    virtual ~MQwPublishable_child() { };
-    void SetParent(U* parent){fParent = parent;};
-    U* GetParent() const {return fParent;};
+  void SetParent( U* parent ) { fParent = parent; };
+  U* GetParent() const { return fParent; };
 
 
  protected:
@@ -29,7 +32,7 @@ class MQwPublishable_child {
     /// \brief Retrieve the variable name from other subsystem arrays
     const VQwHardwareChannel* RequestExternalPointer(const TString& name) const;
     /// \brief Publish the value name with description from a subsystem in this array
-    Bool_t PublishInternalValue(const TString name, const TString desc, const VQwHardwareChannel* element) const;
+    Bool_t PublishInternalValue(const TString& name, const TString& desc, const VQwHardwareChannel* element) const;
 
 
     /// The functions below should be specified in the fully derived classes.
@@ -50,7 +53,7 @@ class MQwPublishable {
 
   public:
 
-    MQwPublishable() { };
+    MQwPublishable() = default;
     MQwPublishable(const MQwPublishable& source) {
       fPublishedValuesDataElement.clear();
       fPublishedValuesSubsystem.clear();
@@ -66,7 +69,7 @@ class MQwPublishable {
 
     /// \brief Retrieve the variable name from other subsystem arrays
     const VQwHardwareChannel* RequestExternalPointer(const TString& name) const;
-    
+
     /// \brief Retrieve the variable name from subsystems in this subsystem array
     virtual const VQwHardwareChannel* ReturnInternalValue(const TString& name) const;
 
@@ -78,10 +81,10 @@ class MQwPublishable {
 
     /// \brief Publish the value name with description from a subsystem in this array
     Bool_t PublishInternalValue(
-        const TString name,
-        const TString desc,
-        const T* subsys,
-        const VQwHardwareChannel* element);
+      const TString& name,
+      const TString& desc,
+      const T* subsys,
+      const VQwHardwareChannel* element);
 
   private:
     /// \brief Try to publish an internal variable matching the submitted name
@@ -91,7 +94,7 @@ class MQwPublishable {
     std::map<TString, const VQwHardwareChannel*> fPublishedValuesDataElement;
     std::map<TString, const T*>                  fPublishedValuesSubsystem;
     std::map<TString, TString>                   fPublishedValuesDescription;
- 
+
 };
 
 #endif

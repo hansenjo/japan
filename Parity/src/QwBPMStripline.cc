@@ -48,8 +48,6 @@ void  QwBPMStripline<T>::InitializeChannel(TString name)
   for(i=kXAxis;i<kNumAxes;i++) fRelPos[i].InitializeChannel(name+"Rel"+kAxisLabel[i],"derived");
 
   bFullSave=kTRUE;
-
-  return;
 }
 
 template<typename T>
@@ -83,8 +81,6 @@ void  QwBPMStripline<T>::InitializeChannel(TString subsystem, TString name)
   for(i=kXAxis;i<kNumAxes;i++) fRelPos[i].InitializeChannel(subsystem, "QwBPMStripline", name+"Rel"+kAxisLabel[i],"derived");
 
   bFullSave=kTRUE;
-
-  return;
 }
 
 template<typename T>
@@ -100,8 +96,6 @@ void QwBPMStripline<T>::ClearEventData()
   }
   fEffectiveCharge.ClearEventData();
   fEllipticity.ClearEventData();
-
- return;
 }
 
 
@@ -161,8 +155,8 @@ UInt_t QwBPMStripline<T>::GetEventcutErrorFlag(){
     error|=fRelPos[i].GetEventcutErrorFlag();
     error|=fAbsPos[i].GetEventcutErrorFlag();
   }
-  error|=fEffectiveCharge.GetEventcutErrorFlag();  
-  error|=fEllipticity.GetEventcutErrorFlag();  
+  error|=fEffectiveCharge.GetEventcutErrorFlag();
+  error|=fEllipticity.GetEventcutErrorFlag();
   return error;
 }
 
@@ -197,21 +191,21 @@ Bool_t QwBPMStripline<T>::CheckForBurpFail(const VQwDataElement *ev_error){
   try {
     if(typeid(*ev_error)==typeid(*this)) {
       //std::cout<<" Here in QwBPMStripline::CheckForBurpFail \n";
-      if (this->GetElementName()!="") {
-        const QwBPMStripline<T>* value_bpm = dynamic_cast<const QwBPMStripline<T>* >(ev_error);
+      if (GetElementName()!="") {
+        const auto* value_bpm = dynamic_cast<const QwBPMStripline<T>* >(ev_error);
 	      for(i=0;i<4;i++){
 	        burpstatus |= fWire[i].CheckForBurpFail(&(value_bpm->fWire[i]));
 	      }
 	      for(i=kXAxis;i<kNumAxes;i++) {
 	        burpstatus |= fRelPos[i].CheckForBurpFail(&(value_bpm->fRelPos[i]));
-	        burpstatus |= fAbsPos[i].CheckForBurpFail(&(value_bpm->fAbsPos[i])); 
+	        burpstatus |= fAbsPos[i].CheckForBurpFail(&(value_bpm->fAbsPos[i]));
 	      }
-	      burpstatus |= fEffectiveCharge.CheckForBurpFail(&(value_bpm->fEffectiveCharge)); 
-	      burpstatus |= fEllipticity.CheckForBurpFail(&(value_bpm->fEllipticity)); 
+	      burpstatus |= fEffectiveCharge.CheckForBurpFail(&(value_bpm->fEffectiveCharge));
+	      burpstatus |= fEllipticity.CheckForBurpFail(&(value_bpm->fEllipticity));
       }
     } else {
       TString loc="Standard exception from QwBPMStripline::CheckForBurpFail :"+
-        ev_error->GetElementName()+" "+this->GetElementName()+" are not of the "
+        ev_error->GetElementName()+" "+GetElementName()+" are not of the "
         +"same type";
       throw std::invalid_argument(loc.Data());
     }
@@ -228,27 +222,27 @@ void QwBPMStripline<T>::UpdateErrorFlag(const VQwBPM *ev_error){
   try {
     if(typeid(*ev_error)==typeid(*this)) {
       // std::cout<<" Here in QwBPMStripline::UpdateErrorFlag \n";
-      if (this->GetElementName()!="") {
-        const QwBPMStripline<T>* value_bpm = dynamic_cast<const QwBPMStripline<T>* >(ev_error);
+      if (GetElementName()!="") {
+        const auto* value_bpm = dynamic_cast<const QwBPMStripline<T>* >(ev_error);
 	      for(i=0;i<4;i++){
 	        fWire[i].UpdateErrorFlag(value_bpm->fWire[i]);
 	      }
 	      for(i=kXAxis;i<kNumAxes;i++) {
 	        fRelPos[i].UpdateErrorFlag(value_bpm->fRelPos[i]);
-	        fAbsPos[i].UpdateErrorFlag(value_bpm->fAbsPos[i]); 
+	        fAbsPos[i].UpdateErrorFlag(value_bpm->fAbsPos[i]);
 	      }
-	      fEffectiveCharge.UpdateErrorFlag(value_bpm->fEffectiveCharge); 
-	      fEllipticity.UpdateErrorFlag(value_bpm->fEllipticity); 
+	      fEffectiveCharge.UpdateErrorFlag(value_bpm->fEffectiveCharge);
+	      fEllipticity.UpdateErrorFlag(value_bpm->fEllipticity);
       }
     } else {
       TString loc="Standard exception from QwBPMStripline::UpdateErrorFlag :"+
-        ev_error->GetElementName()+" "+this->GetElementName()+" are not of the "
+        ev_error->GetElementName()+" "+GetElementName()+" are not of the "
         +"same type";
       throw std::invalid_argument(loc.Data());
     }
   } catch (std::exception& e) {
     std::cerr<< e.what()<<std::endl;
-  }  
+  }
 };
 
 
@@ -283,7 +277,7 @@ Bool_t QwBPMStripline<T>::ApplySingleEventCuts()
   fEffectiveCharge.UpdateErrorFlag(element_error_code[kXAxis]|element_error_code[kYAxis]);
   fEllipticity.UpdateErrorFlag(element_error_code[kXAxis]|element_error_code[kYAxis]);
 
-  
+
 
    //Event cuts for Relative X & Y
   for(i=kXAxis;i<kNumAxes;i++){
@@ -347,7 +341,7 @@ VQwHardwareChannel* QwBPMStripline<T>::GetSubelementByName(TString ch_name)
     tmpptr = &fEllipticity;
   } else {
     TString loc="QwBPMStripline::GetSubelementByName for"
-      + this->GetElementName() + " was passed "
+      + GetElementName() + " was passed "
       + ch_name + ", which is an unrecognized subelement name.";
     throw std::invalid_argument(loc.Data());
   }
@@ -359,7 +353,7 @@ template<typename T>
 void QwBPMStripline<T>::SetSingleEventCuts(TString ch_name, Double_t minX, Double_t maxX)
 {
   VQwHardwareChannel* tmpptr = GetSubelementByName(ch_name);
-  QwMessage << ch_name 
+  QwMessage << ch_name
 	    << " LL " <<  minX <<" UL " << maxX <<QwLog::endl;
   tmpptr->SetSingleEventCuts(minX,maxX);
 }
@@ -426,48 +420,44 @@ void  QwBPMStripline<T>::ProcessEvent()
   Short_t i = 0;
 
   ApplyHWChecks();
-  /**First apply HW checks and update HW  error flags. 
-     Calling this routine here and not in ApplySingleEventCuts  
+  /**First apply HW checks and update HW  error flags.
+     Calling this routine here and not in ApplySingleEventCuts
      makes a difference for a BPMs because they have derrived devices.
   */
 
   fEffectiveCharge.ClearEventData();
   fEllipticity.ClearEventData();
 
-  for(i=0;i<4;i++)
-    {
-      fWire[i].ProcessEvent();
-      fEffectiveCharge+=fWire[i];
-      if (i<2)
-      {
-        fEllipticity+=fWire[i];
-      }
-      else 
-      {
-        fEllipticity-=fWire[i];
-      }
+  for( i = 0; i < 4; i++ ) {
+    fWire[i].ProcessEvent();
+    fEffectiveCharge += fWire[i];
+    if( i < 2 ) {
+      fEllipticity += fWire[i];
+    } else {
+      fEllipticity -= fWire[i];
     }
+  }
   fEllipticity.Ratio(fEllipticity,fEffectiveCharge);
   fEllipticity.Scale(0.5*fQwStriplineCalibration*fQwStriplineCalibration); // Include 2*k/sigma scale factor here
 
   /**
      To obtain the beam position in X and Y in the CEBAF coordinates, we use the following equations
-     
+
                                                                  (XP - AlphaX XM)
      RelX (bpm coordinates) = fQwStriplineCalibration x GainX x ----------------
-                                                                 (XP + AlphaX XM) 
+                                                                 (XP + AlphaX XM)
 
                                                                   (YP - AplhaY YM)
      RelY (bpm coordinates) = fQwStriplineCalibration x GainY x ----------------
                                                                   (YP + AlphaY YM)
 
-     To get back to accelerator coordinates, rotate anti-clockwise around +Z by phi degrees (angle w.r.t X axis).							
-     
+     To get back to accelerator coordinates, rotate anti-clockwise around +Z by phi degrees (angle w.r.t X axis).
+
      RelX (accelarator coordinates) =  cos(phi) RelX - sin(phi)RelY
-    
-     RelY (accelarator coordinates) =  sin(phi) RelX + cos(Phi)RelY 
- 
-     The Ellipticity is calculated as coefficients*(xp+xm-yp-ym)/(xp+xm+yp+ym) 
+
+     RelY (accelarator coordinates) =  sin(phi) RelX + cos(Phi)RelY
+
+     The Ellipticity is calculated as coefficients*(xp+xm-yp-ym)/(xp+xm+yp+ym)
        where the coeffients are ~ 2*k/sigma, k = stripline calibration, sigma = BPM effective size
   */
 
@@ -494,7 +484,7 @@ void  QwBPMStripline<T>::ProcessEvent()
 	}
     }
 
-  for(i=kXAxis;i<kNumAxes;i++){ 
+  for(i=kXAxis;i<kNumAxes;i++){
     tmp1.AssignScaledValue(rawpos[i],   fCosRotation);
 //    tmp1.PrintInfo();
     tmp2.AssignScaledValue(rawpos[1-i], fSinRotation);
@@ -506,44 +496,38 @@ void  QwBPMStripline<T>::ProcessEvent()
   }
 
 
-  for(i=kXAxis;i<kNumAxes;i++){
+  for( i = kXAxis; i < kNumAxes; i++ ) {
     fAbsPos[i] = fRelPos[i];
     fAbsPos[i].AddChannelOffset(fPositionCenter[i]);
-    fAbsPos[i].Scale(1.0/fGains[i]);
+    fAbsPos[i].Scale(1.0 / fGains[i]);
 
 // Start from here.....................................
 
-    if(localdebug)
-    {
-	std::cout<<" hw  fRelPos["<<kAxisLabel[i]<<"]="<<fRelPos[i].GetValue()<<"\n";
-	std::cout<<" hw  fOffset["<<kAxisLabel[i]<<"]="<<fPositionCenter[i]<<"\n";
-	std::cout<<" hw  fAbsPos["<<kAxisLabel[i]<<"]="<<fAbsPos[i].GetValue()<<"\n \n";
+    if( localdebug ) {
+      std::cout << " hw  fRelPos[" << kAxisLabel[i] << "]=" << fRelPos[i].GetValue() << "\n";
+      std::cout << " hw  fOffset[" << kAxisLabel[i] << "]=" << fPositionCenter[i] << "\n";
+      std::cout << " hw  fAbsPos[" << kAxisLabel[i] << "]=" << fAbsPos[i].GetValue() << "\n \n";
     }
-    
+
   }
   // Ellipticity gets corrected by the BPM central axis relative positions
   tmp3.Product(fRelPos[kXAxis],fRelPos[kXAxis]);
   tmp4.Product(fRelPos[kYAxis],fRelPos[kYAxis]);
   tmp5.Difference(tmp3,tmp4);
   tmp5.Scale(-1.0*0.250014); // FIXME Does this correction factor need a BPM specific (i.e. BSEN) scaling factor? - It already includes BSENfactor^2 because it is made of post-BSENfactor scaled X and Y values, so lets assume its ok for now
-  fEllipticity.Sum(fEllipticity,tmp5); // Correction to ellipticity (only 1st order correction)
-
-  return;
+  fEllipticity.Sum(fEllipticity,tmp5);
 }
 
 
 template<typename T>
 Int_t QwBPMStripline<T>::ProcessEvBuffer(UInt_t* buffer, UInt_t word_position_in_buffer,UInt_t index)
 {
-  if(index<4)
-    {
-      fWire[index].ProcessEvBuffer(buffer,word_position_in_buffer);
-    }
-  else
-    {
-    std::cerr <<
-      "QwBPMStripline::ProcessEvBuffer(): attemp to fill in raw date for a wire that doesn't exist \n";
-    }
+  if( index < 4 ) {
+    fWire[index].ProcessEvBuffer(buffer, word_position_in_buffer);
+  } else {
+    std::cerr << "QwBPMStripline::ProcessEvBuffer(): "
+                 "attempt to fill in raw date for a wire that doesn't exist \n";
+  }
   return word_position_in_buffer;
 }
 
@@ -562,15 +546,13 @@ void QwBPMStripline<T>::PrintValue() const
 
 
 template<typename T>
-void QwBPMStripline<T>::WritePromptSummary(QwPromptSummary *ps, TString type)
-{
+void QwBPMStripline<T>::WritePromptSummary(QwPromptSummary *ps, TString type) {
 
   QwMessage << "void QwBPMStripline<T>::WritePromptSummary() const test " << QwLog::endl;
   //  for (Short_t i = 0; i < 2; i++) {
   //    fAbsPos[i].PrintValue();
   //    fRelPos[i].PrintValue();
   //  }
-  return;
 }
 
 
@@ -640,15 +622,15 @@ QwBPMStripline<T>& QwBPMStripline<T>::operator= (const QwBPMStripline<T> &value)
 {
   VQwBPM::operator= (value);
 
-  this->bRotated=value.bRotated;
+  bRotated=value.bRotated;
   if (GetElementName()!=""){
     Short_t i = 0;
-    this->fEffectiveCharge=value.fEffectiveCharge;
-    this->fEllipticity=value.fEllipticity;
-    for(i=0;i<4;i++) this->fWire[i]=value.fWire[i];
+    fEffectiveCharge=value.fEffectiveCharge;
+    fEllipticity=value.fEllipticity;
+    for(i=0;i<4;i++) fWire[i]=value.fWire[i];
     for(i=kXAxis;i<kNumAxes;i++) {
-      this->fRelPos[i]=value.fRelPos[i];
-      this->fAbsPos[i]=value.fAbsPos[i];
+      fRelPos[i]=value.fRelPos[i];
+      fAbsPos[i]=value.fAbsPos[i];
     }
   }
   return *this;
@@ -668,12 +650,12 @@ QwBPMStripline<T>& QwBPMStripline<T>::operator+= (const QwBPMStripline<T> &value
 
   if (GetElementName()!=""){
     Short_t i = 0;
-    this->fEffectiveCharge+=value.fEffectiveCharge;
-    this->fEllipticity+=value.fEllipticity;
-    for(i=0;i<4;i++) this->fWire[i]+=value.fWire[i];
+    fEffectiveCharge+=value.fEffectiveCharge;
+    fEllipticity+=value.fEllipticity;
+    for(i=0;i<4;i++) fWire[i]+=value.fWire[i];
     for(i=kXAxis;i<kNumAxes;i++) {
-      this->fRelPos[i]+=value.fRelPos[i];
-      this->fAbsPos[i]+=value.fAbsPos[i];
+      fRelPos[i]+=value.fRelPos[i];
+      fAbsPos[i]+=value.fAbsPos[i];
     }
   }
   return *this;
@@ -692,12 +674,12 @@ QwBPMStripline<T>& QwBPMStripline<T>::operator-= (const QwBPMStripline<T> &value
 
   if (GetElementName()!=""){
     Short_t i = 0;
-    this->fEffectiveCharge-=value.fEffectiveCharge;
-    this->fEllipticity-=value.fEllipticity;
-    for(i=0;i<4;i++) this->fWire[i]-=value.fWire[i];
+    fEffectiveCharge-=value.fEffectiveCharge;
+    fEllipticity-=value.fEllipticity;
+    for(i=0;i<4;i++) fWire[i]-=value.fWire[i];
     for(i=kXAxis;i<kNumAxes;i++) {
-      this->fRelPos[i]-=value.fRelPos[i];
-      this->fAbsPos[i]-=value.fAbsPos[i];
+      fRelPos[i]-=value.fRelPos[i];
+      fAbsPos[i]-=value.fAbsPos[i];
     }
   }
   return *this;
@@ -717,8 +699,8 @@ void QwBPMStripline<T>::Ratio( QwBPMStripline<T> &numer, QwBPMStripline<T> &deno
   // stripline is the difference only not the asymmetries
 
   *this=numer;
-  this->fEffectiveCharge.Ratio(numer.fEffectiveCharge,denom.fEffectiveCharge);
-  this->fEllipticity.Ratio(numer.fEllipticity,denom.fEllipticity);
+  fEffectiveCharge.Ratio(numer.fEffectiveCharge,denom.fEffectiveCharge);
+  fEllipticity.Ratio(numer.fEllipticity,denom.fEllipticity);
 }
 
 
@@ -775,6 +757,7 @@ void QwBPMStripline<T>::AccumulateRunningSum(const QwBPMStripline<T>& value, Int
   fEffectiveCharge.AccumulateRunningSum(value.fEffectiveCharge, count, ErrorMask);
   fEllipticity.AccumulateRunningSum(value.fEllipticity, count, ErrorMask);
 }
+
 template<typename T>
 void    QwBPMStripline<T>::DeaccumulateRunningSum(VQwBPM& value, Int_t ErrorMask){
   DeaccumulateRunningSum(*dynamic_cast<QwBPMStripline<T>* >(&value), ErrorMask);
@@ -791,7 +774,7 @@ void    QwBPMStripline<T>::DeaccumulateRunningSum(QwBPMStripline<T>& value, Int_
     fAbsPos[i].DeaccumulateRunningSum(value.fAbsPos[i], ErrorMask);
   }
   fEffectiveCharge.DeaccumulateRunningSum(value.fEffectiveCharge, ErrorMask);
-  fEllipticity.DeaccumulateRunningSum(value.fEllipticity, ErrorMask);  
+  fEllipticity.DeaccumulateRunningSum(value.fEllipticity, ErrorMask);
 };
 
 template<typename T>
@@ -807,7 +790,7 @@ void  QwBPMStripline<T>::ConstructHistograms(TDirectory *folder, TString &prefix
 
     if(prefix.Contains("asym_"))
       thisprefix.ReplaceAll("asym_","diff_");
-    this->SetRootSaveStatus(prefix);
+    SetRootSaveStatus(prefix);
     Short_t i = 0;
     if(bFullSave) {
       for(i=0;i<4;i++) fWire[i].ConstructHistograms(folder, thisprefix);
@@ -817,7 +800,6 @@ void  QwBPMStripline<T>::ConstructHistograms(TDirectory *folder, TString &prefix
       fAbsPos[i].ConstructHistograms(folder, thisprefix);
     }
   }
-  return;
 }
 
 template<typename T>
@@ -839,7 +821,6 @@ void  QwBPMStripline<T>::FillHistograms()
     }
     //No data for z position
   }
-  return;
 }
 
 template<typename T>
@@ -853,7 +834,7 @@ void  QwBPMStripline<T>::ConstructBranchAndVector(TTree *tree, TString &prefix, 
     if(prefix.Contains("asym_"))
       thisprefix.ReplaceAll("asym_","diff_");
 
-    this->SetRootSaveStatus(prefix);
+    SetRootSaveStatus(prefix);
 
     fEffectiveCharge.ConstructBranchAndVector(tree,prefix,values);
     fEllipticity.ConstructBranchAndVector(tree,prefix,values);
@@ -868,7 +849,6 @@ void  QwBPMStripline<T>::ConstructBranchAndVector(TTree *tree, TString &prefix, 
     }
 
   }
-  return;
 }
 
 template<typename T>
@@ -882,7 +862,7 @@ void  QwBPMStripline<T>::ConstructBranch(TTree *tree, TString &prefix)
     if(prefix.Contains("asym_"))
       thisprefix.ReplaceAll("asym_","diff_");
 
-    this->SetRootSaveStatus(prefix);
+    SetRootSaveStatus(prefix);
 
     fEffectiveCharge.ConstructBranch(tree,prefix);
     fEllipticity.ConstructBranch(tree,prefix);
@@ -897,7 +877,6 @@ void  QwBPMStripline<T>::ConstructBranch(TTree *tree, TString &prefix)
     }
 
   }
-  return;
 }
 
 template<typename T>
@@ -914,37 +893,34 @@ void  QwBPMStripline<T>::ConstructBranch(TTree *tree, TString &prefix, QwParamet
   }
   QwMessage <<QwLog::endl;
   */
-  devicename=GetElementName();
+  devicename = GetElementName();
   devicename.ToLower();
-  if (GetElementName()==""){
+  if( GetElementName() == "" ) {
     //  This channel is not used, so skip filling the histograms.
-  } else
-    {
-      if (modulelist.HasValue(devicename)){
-	TString thisprefix=prefix;
-	if(prefix.Contains("asym_"))
-	  thisprefix.ReplaceAll("asym_","diff_");
+  } else {
+    if( modulelist.HasValue(devicename) ) {
+      TString thisprefix = prefix;
+      if( prefix.Contains("asym_") )
+        thisprefix.ReplaceAll("asym_", "diff_");
 
-	this->SetRootSaveStatus(prefix);
+      SetRootSaveStatus(prefix);
 
-	fEffectiveCharge.ConstructBranch(tree,prefix);
-	fEllipticity.ConstructBranch(tree,prefix);
-	Short_t i = 0;
-	if(bFullSave) {
-	  for(i=0;i<4;i++) fWire[i].ConstructBranch(tree,thisprefix);
-	}
-	for(i=kXAxis;i<kNumAxes;i++) {
-	  //  2018dec20, pking:  Do not output the relative positions to Trees
-	  //	  fRelPos[i].ConstructBranch(tree,thisprefix);
-	  fAbsPos[i].ConstructBranch(tree,thisprefix);
-	}
-
-	QwMessage <<" Tree leaves added to "<<devicename<<" Corresponding channels"<<QwLog::endl;
+      fEffectiveCharge.ConstructBranch(tree, prefix);
+      fEllipticity.ConstructBranch(tree, prefix);
+      Short_t i = 0;
+      if( bFullSave ) {
+        for( i = 0; i < 4; i++ ) fWire[i].ConstructBranch(tree, thisprefix);
       }
-      // this functions doesn't do anything yet
-    }
+      for( i = kXAxis; i < kNumAxes; i++ ) {
+        //  2018dec20, pking:  Do not output the relative positions to Trees
+        //	  fRelPos[i].ConstructBranch(tree,thisprefix);
+        fAbsPos[i].ConstructBranch(tree, thisprefix);
+      }
 
-  return;
+      QwMessage << " Tree leaves added to " << devicename << " Corresponding channels" << QwLog::endl;
+    }
+    // this functions doesn't do anything yet
+  }
 }
 
 
@@ -967,7 +943,6 @@ void  QwBPMStripline<T>::FillTreeVector(std::vector<Double_t> &values) const
       fAbsPos[i].FillTreeVector(values);
     }
   }
-  return;
 }
 
 template<typename T>
@@ -1049,11 +1024,11 @@ std::vector<QwErrDBInterface> QwBPMStripline<T>::GetErrDBEntry()
 template<typename T>
 void  QwBPMStripline<T>::SetRandomEventParameters(Double_t meanX, Double_t sigmaX, Double_t meanY, Double_t sigmaY)
 {
-    //fAbsPos[kXAxis].SetMockDataAsDiff();
-    //fAbsPos[kYAxis].SetMockDataAsDiff();
+  //fAbsPos[kXAxis].SetMockDataAsDiff();
+  //fAbsPos[kYAxis].SetMockDataAsDiff();
 
-    fAbsPos[kXAxis].SetRandomEventParameters(meanX, sigmaX);
-    fAbsPos[kYAxis].SetRandomEventParameters(meanY, sigmaY);
+  fAbsPos[kXAxis].SetRandomEventParameters(meanX, sigmaX);
+  fAbsPos[kYAxis].SetRandomEventParameters(meanY, sigmaY);
 
 /*  // Average values of the signals in the stripline ADCs
   Double_t sumX = 3.5; // These are just guesses, but I made X and Y different
@@ -1093,7 +1068,7 @@ void  QwBPMStripline<T>::SetRandomEventParameters(Double_t meanX, Double_t sigma
 template<typename T>
 void QwBPMStripline<T>::RandomizeEventData(int helicity, double time)
 {
-  
+
 /* First randomize AbsX and AbsY, then go backwards through the steps of QwBPMStripline<T>::ProcessEvent() to get the randomized wire values.*/
 
   size_t i;
@@ -1103,16 +1078,16 @@ void QwBPMStripline<T>::RandomizeEventData(int helicity, double time)
 
   //  std::cout << "In QwBPMStripline<T>::RandomizeEventData" << std::endl;
   for(i=kXAxis;i<kNumAxes;i++){
-    fAbsPos[i].RandomizeEventData(helicity, time); 
+    fAbsPos[i].RandomizeEventData(helicity, time);
     //  fAbsPos[i].PrintInfo();
   }
-  this->FillRawEventData();
+  FillRawEventData();
 }
 
 
 template<typename T>
 void QwBPMStripline<T>::SetMockDataAsDiff() {
-  this->SetMockDataAsDiff();
+  SetMockDataAsDiff();
 }
 
 
@@ -1128,14 +1103,14 @@ void QwBPMStripline<T>::LoadMockDataParameters(QwParameterFile &paramfile) {
     paramfile.GetNextToken();
     xres = paramfile.GetTypedNextToken<Double_t>();
     yres = paramfile.GetTypedNextToken<Double_t>();
-    this->SetResolution(xres, yres);
+    SetResolution(xres, yres);
   } else {
 //  again, if we have asymmetry for each coord, we can use the mockable load function acting on fAbsPos[xaxis, yaxis]
 /*
     asym    = paramfile.GetTypedNextToken<Double_t>();
-    meanX   = paramfile.GetTypedNextToken<Double_t>(); 
+    meanX   = paramfile.GetTypedNextToken<Double_t>();
     sigmaX  = paramfile.GetTypedNextToken<Double_t>();
-    meanY   = paramfile.GetTypedNextToken<Double_t>(); 
+    meanY   = paramfile.GetTypedNextToken<Double_t>();
     sigmaY  = paramfile.GetTypedNextToken<Double_t>();
 
     if (ldebug==1) {
@@ -1148,8 +1123,8 @@ void QwBPMStripline<T>::LoadMockDataParameters(QwParameterFile &paramfile) {
 	        << sigmaY                           << " / "
 	        << std::endl;
     }
-    this->SetRandomEventParameters(meanX, sigmaX, meanY, sigmaY);
-    this->SetRandomEventAsymmetry(asym);
+    SetRandomEventParameters(meanX, sigmaX, meanY, sigmaY);
+    SetRandomEventAsymmetry(asym);
 */
     for(size_t i=kXAxis;i<kNumAxes;i++){
       //std::cout << "In QwBPMStripline: ChannelName = " << GetElementName() << std::endl;
@@ -1168,14 +1143,14 @@ void QwBPMStripline<T>::ApplyResolutionSmearing(){
 }
 template<typename T>
 void QwBPMStripline<T>::ApplyResolutionSmearing(EBeamPositionMonitorAxis iaxis){
-   // std::cout << this->GetElementName() << " resolution on axis(" << iaxis << ")==" << fResolution[iaxis] << std::endl;
+   // std::cout << GetElementName() << " resolution on axis(" << iaxis << ")==" << fResolution[iaxis] << std::endl;
    fAbsPos[iaxis].SmearByResolution(fResolution[iaxis]);
 }
 
 template<typename T>
 void QwBPMStripline<T>::FillRawEventData()
 {
- //std::cout <<  "*******In QwBPMStripline::FillRawEventData for channel:\t" << this->GetElementName() << std::endl;
+ //std::cout <<  "*******In QwBPMStripline::FillRawEventData for channel:\t" << GetElementName() << std::endl;
  // XP = XM*(A+tmpX)/(A-tmpX);
 
   size_t i;
@@ -1191,7 +1166,7 @@ void QwBPMStripline<T>::FillRawEventData()
     fRelPos[i].AddChannelOffset(-1.0*fPositionCenter[i]);
   }
 
-  for(i=kXAxis; i<kNumAxes; i++){ 
+  for(i=kXAxis; i<kNumAxes; i++){
     tmp1.AssignScaledValue(fRelPos[i],   fCosRotation);
     tmp2.AssignScaledValue(fRelPos[1-i], fSinRotation);
     if (i == kXAxis) {
@@ -1219,7 +1194,7 @@ void QwBPMStripline<T>::FillRawEventData()
       }
       fWire[i*2].SetRawEventData();
       fWire[i*2+1].SetRawEventData();
-      //std::cout <<  "*******In QwBPMStripline::FillRawEventData for channel:\t" << this->GetElementName() << std::endl;
+      //std::cout <<  "*******In QwBPMStripline::FillRawEventData for channel:\t" << GetElementName() << std::endl;
       //fWire[i*2].PrintValue();
       //fWire[i*2+1].PrintValue();
     }
@@ -1233,7 +1208,6 @@ void QwBPMStripline<T>::FillRawEventData()
    fWire[i].PrintInfo();
    }
 */
-  return;
 }
 
 
@@ -1244,22 +1218,22 @@ void QwBPMStripline<T>::SetEventData(Double_t* relpos, UInt_t sequencenumber)
       //fRelPos[i].SetHardwareSum(relpos[i], sequencenumber);
     }
 
-  return;
-}
+  }
 
 
 template<typename T>
 void QwBPMStripline<T>::EncodeEventData(std::vector<UInt_t> &buffer)
 {
-  for (Short_t i=0; i<4; i++) fWire[i].EncodeEventData(buffer);
+  for (auto & wire : fWire)
+    wire.EncodeEventData(buffer);
 }
 
 
 template<typename T>
 void QwBPMStripline<T>::SetDefaultSampleSize(Int_t sample_size)
 {
-  for(Short_t i=0;i<4;i++) fWire[i].SetDefaultSampleSize((size_t)sample_size);
-  return;
+  for(auto & wire : fWire)
+    wire.SetDefaultSampleSize((size_t)sample_size);
 }
 
 
@@ -1267,17 +1241,15 @@ template<typename T>
 void QwBPMStripline<T>::SetSubElementPedestal(Int_t j, Double_t value)
 {
   fWire[j].SetPedestal(value);
-  return;
 }
 
 template<typename T>
 void QwBPMStripline<T>::SetSubElementCalibrationFactor(Int_t j, Double_t value)
 {
   fWire[j].SetCalibrationFactor(value);
-  return;
 }
 
 
-template class QwBPMStripline<QwVQWK_Channel>; 
-template class QwBPMStripline<QwSIS3801_Channel>; 
+template class QwBPMStripline<QwVQWK_Channel>;
+template class QwBPMStripline<QwSIS3801_Channel>;
 template class QwBPMStripline<QwSIS3801D24_Channel>;

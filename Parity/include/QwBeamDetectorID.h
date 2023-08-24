@@ -5,8 +5,8 @@
 * Time-stamp:                                             *
 \**********************************************************/
 
-#ifndef __QWBEAMDETECTORID__
-#define __QWBEAMDETECTORID__
+#ifndef QWBEAMDETECTORID_H
+#define QWBEAMDETECTORID_H
 
 // ROOT headers
 #include "Rtypes.h"
@@ -27,7 +27,7 @@ public:
 		   TString modtype);
   QwBeamDetectorID(Int_t subbankid, QwParameterFile &paramfile);
   QwBeamDetectorID(const QwBeamDetectorID& input);
-  ~QwBeamDetectorID(){};
+  ~QwBeamDetectorID() = default;
 
   Bool_t ReportInitErrors() const;
   void   Print() const;
@@ -50,8 +50,7 @@ public:
   TString fChannelName;
   TString fSubelementName;
 
-private:
-  QwBeamDetectorID();
+  QwBeamDetectorID() = delete;
 
 };
 

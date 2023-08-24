@@ -8,8 +8,8 @@
 ///
 /// \ingroup QwAnalysis_ADC
 
-#ifndef __QWBLINDDETECTORARRAY__
-#define __QWBLINDDETECTORARRAY__
+#ifndef QWBLINDDETECTORARRAY_H
+#define QWBLINDDETECTORARRAY_H
 
 // System headers
 #include <vector>
@@ -34,11 +34,9 @@ class QwBlindDetectorArray:
    *
    *
    ******************************************************************/
- private:
-  /// Private default constructor (not implemented, will throw linker error on use)
-  QwBlindDetectorArray();
-
  public:
+  /// No default constructor
+  QwBlindDetectorArray() = delete;
   /// Constructor with name
   QwBlindDetectorArray(const TString& name)
   : VQwSubsystem(name),VQwSubsystemParity(name),bNormalization(kFALSE)
@@ -58,7 +56,7 @@ class QwBlindDetectorArray:
     fMainDetID(source.fMainDetID)
   { }
   /// Virtual destructor
-  virtual ~QwBlindDetectorArray() { };
+  virtual ~QwBlindDetectorArray() = default;
 
   /*  Member functions derived from VQwSubsystemParity. */
 
@@ -67,9 +65,9 @@ class QwBlindDetectorArray:
 
 
   void ProcessOptions(QwOptions &options);//Handle command line options
-  Int_t LoadChannelMap(TString mapfile);
-  Int_t LoadInputParameters(TString pedestalfile);
-  Int_t LoadEventCuts(TString filename);
+  Int_t LoadChannelMap( const TString& mapfile);
+  Int_t LoadInputParameters( const TString& pedestalfile);
+  Int_t LoadEventCuts( const TString& filename);
   Bool_t ApplySingleEventCuts();//Check for good events by stting limits on the devices readings
 
   Bool_t  CheckForBurpFail(const VQwSubsystem *subsys);
@@ -82,8 +80,8 @@ class QwBlindDetectorArray:
   void UpdateErrorFlag(const VQwSubsystem *ev_error);
 
 
-  Int_t ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
-  Int_t ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
 
   void  ClearEventData();
   Bool_t IsGoodEvent();
@@ -160,7 +158,7 @@ class QwBlindDetectorArray:
   };
 
   void  PrintValue() const;
-  void  WritePromptSummary(QwPromptSummary *ps, TString type);
+  void  WritePromptSummary( QwPromptSummary *ps, const TString& type);
   void  PrintInfo() const;
   void  PrintDetectorID() const;
 
@@ -209,6 +207,7 @@ class QwBlindDetectorArray:
 
 };
 
+DeclareSubsystemFactory(QwBlindDetectorArray);
 
 class QwBlindDetectorArrayID
 {
@@ -241,16 +240,3 @@ class QwBlindDetectorArrayID
 
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-

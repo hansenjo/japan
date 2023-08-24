@@ -8,10 +8,10 @@
  * CEBAF Data Acquisition Group, 12000 Jefferson Ave., Newport News, VA 23606
  * Email: coda@cebaf.gov  Tel: (804) 249-7101  Fax: (804) 249-7363
  *-----------------------------------------------------------------------------
- * 
+ *
  * Description:
  *	Event I/O routines
- *	
+ *
  * Author:  Chip Watson, CEBAF Data Acquisition Group
  *
  * Revision History:
@@ -36,7 +36,7 @@
  *
 *	  Revision 1.1  95/01/20  14:00:16  14:00:16  abbottd (David Abbott)
 *	  Initial revision
-*	  
+*
  *	  Revision 1.5  1994/08/15  15:45:09  chen
  *	  add evnum to EVFILE structure. Keep event number when call evWrite
  *
@@ -120,8 +120,8 @@
 #define EVBLOCKSIZE 8192*4
 #define EV_READ 0
 #define EV_WRITE 1
-#define EV_PIPE 2 
-#define EV_PIPEWRITE 3 
+#define EV_PIPE 2
+#define EV_PIPEWRITE 3
 #define EV_VERSION 1
 #define EV_MAGIC 0xc0da0100
 #define EV_HDSIZ 8
@@ -213,8 +213,8 @@ int evOpen(char *filename,char *flags,EVFILE **handle)
     } else {
       a->file = fopen(filename,"r");
       if(a->file) {
-	int compressed;
-	compressed = 0;
+//	int compressed;
+//	compressed = 0;
 	char bytes[2];
 	checked_fread(bytes,2,1,a->file); /* Check magic bytes for compressions */
 	if(bytes[0]=='\037' && (bytes[1]=='\213' || bytes[1]=='\235')) {
@@ -241,7 +241,7 @@ int evOpen(char *filename,char *flags,EVFILE **handle)
 	} else {
 	  fclose(a->file);
 	  free (a);
-	  return(S_EVFILE_BADFILE); 
+	  return(S_EVFILE_BADFILE);
 	}
       } else {
 	a->byte_swapped = 0;
@@ -372,7 +372,7 @@ int evRead(EVFILE* handle,int *buffer,int buflen)
     a->left -= ncopy;
   }
   if (a->byte_swapped){
-    swapped_memcpy((char *)buffer,(char *)temp_ptr,buflen*sizeof(int));  
+    swapped_memcpy((char *)buffer,(char *)temp_ptr,buflen*sizeof(int));
     free(temp_ptr);
   }
   return(status);
@@ -537,7 +537,7 @@ int evClose(EVFILE *handle)
   if(a->rw == EV_PIPE || a->rw==EV_PIPEWRITE) {
     status2 = pclose(a->file);
   } else {
-    status2 = fclose(a->file);  
+    status2 = fclose(a->file);
   }
   free((char *)(a->buf));
   free((char *)a);
@@ -559,7 +559,7 @@ int evOpenSearch(EVFILE *handle, EVBSEARCH *b_handle)
   int    found = 0, temp, i = 1;
   int    last_evn,  bknum;
   int    header[EV_HDSIZ];
-  
+
   a = handle;
   b = (EVBSEARCH *)malloc(sizeof(EVBSEARCH));
   if(b == NULL){
@@ -593,7 +593,7 @@ int evOpenSearch(EVFILE *handle, EVBSEARCH *b_handle)
   b_handle = b;
   return last_evn;
 }
-  
+
 /*********************************************************************
  *       static int findLastEventWithinBlock(EVFILE *)               *
  * Description:                                                      *
@@ -608,7 +608,7 @@ static int findLastEventWithinBlock(EVFILE *a)
   int ev_size, evn = 0, last_evn = 0;
   int ev_type;
   int first_time = 0;
-  
+
   while(!found){
     checked_fread(&header, sizeof(int), 1, a->file);
     if(a->byte_swapped)
@@ -738,19 +738,19 @@ int evSearch(EVFILE *handle, EVBSEARCH *b_handle, int evn, int *buffer, int bufl
  *    return -1: evn < all events in the block                              *
  *    return 1:  evn > all events in the block                              *
  ***************************************************************************/
-static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum, 
+static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
 			       int evn, int *buffer, int buflen, int *size)
 {
   int temp, ev_size;
   int status;
-  int found = 0, t_evn, block_num;
+  int found = 0, t_evn/*, block_num*/;
   int ev_type;
 
   evFindEventBlockNum(a, b, bknum);
-  block_num = *bknum;
+  //block_num = *bknum;
 
   /* check first event, if its event number is greater than
-   * requested event number, return -1 
+   * requested event number, return -1
    * the pointer pointing to file has been moved in the previous
    * subroutines
    */
@@ -793,7 +793,7 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
 	if(a->left <= 0){ /* this is the last event */
 	  if(ev_type < 16){ /* physics event here */
 	    t_evn = evGetEventNumber(a, ev_size);  /* pinter stays */
-	    /* check current event number */ 
+	    /* check current event number */
 	    if(t_evn == evn){
 	      fseek(a->file, (-1)*4, SEEK_CUR);
 	      found = 1;
@@ -824,7 +824,7 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
 	    fseek(a->file, (ev_size - 1)*4, SEEK_CUR);
 	}      /* end of not last event case*/
       }        /* end of search event loop*/
-    }          
+    }
   }
   return (0);
 }
@@ -928,7 +928,7 @@ static int isRealEventsInsideBlock(EVFILE *a, int bknum, int old_left)
  * Description:                                                              *
  *    copy a single event to buffer by using fread.                          *
  *    starting point is given by EVFILE *a                                   *
- ****************************************************************************/      
+ ****************************************************************************/
 static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
 {
   int *temp_buffer = NULL, *temp_ptr = NULL, *ptr = NULL;
@@ -967,9 +967,9 @@ static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
 	if(a->byte_swapped){
 	  checked_fread((char *)temp_ptr, ncopy*4, 1, a->file);
 	  temp_ptr = temp_ptr + ncopy;
-	}	
+	}
 	else{
-	  checked_fread((char *)ptr, ncopy*4, 1, a->file);      
+	  checked_fread((char *)ptr, ncopy*4, 1, a->file);
 	  ptr = ptr + ncopy;
 	}
 	nleft = nleft - ncopy;
@@ -996,7 +996,7 @@ static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
       checked_fread(ptr, ev_size*4, 1, a->file);
     }
   }
-  
+
   if(a->byte_swapped){
     swapped_memcpy((char *)buffer, (char *)temp_ptr, buflen*sizeof(int));
     free(temp_ptr);
@@ -1050,7 +1050,7 @@ static int evGetEventNumber(EVFILE *a, int ev_size)
 static int evGetEventType(EVFILE *a)
 {
   int ev_type, temp, t_temp;
-  
+
   if(a->left == 1) /* event type long word is in the following block */
     fseek(a->file, (EV_HDSIZ)*4,SEEK_CUR);
   if(a->byte_swapped){
@@ -1084,7 +1084,7 @@ static int physicsEventsInsideBlock(EVFILE *a)
 {
   int header[EV_HDSIZ], buf[EV_HDSIZ];
   int nleft, temp, ev_size, ev_type;
-  
+
   /* copy block header information */
   if(a->byte_swapped){
     checked_fread(header, sizeof(header), 1, a->file);
