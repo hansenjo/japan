@@ -6,11 +6,12 @@
  * \date   2007-05-08 15:40
  */
 
-#ifndef __VQWSUBSYSTEM__
-#define __VQWSUBSYSTEM__
+#ifndef VQWSUBSYSTEM_H
+#define VQWSUBSYSTEM_H
 
 // System headers
 #include <iostream>
+#include <utility>
 #include <vector>
 
 // ROOT headers
@@ -62,9 +63,9 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
  public:
 
   /// Constructor with name
-  VQwSubsystem(const TString& name)
+  explicit VQwSubsystem(TString name)
   : MQwHistograms(),
-    fSystemName(name), fEventTypeMask(0x0), fIsDataLoaded(kFALSE),
+    fSystemName(std::move(name)), fEventTypeMask(0x0), fIsDataLoaded(kFALSE),
     fCurrentROC_ID(-1), fCurrentBank_ID(-1) {
     ClearAllBankRegistrations();
   }
@@ -83,7 +84,7 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
   }
 
   /// Default destructor
-  virtual ~VQwSubsystem() { }
+  virtual ~VQwSubsystem() = default;
 
 
   /// \brief Define options function (note: no virtual static functions in C++)
@@ -123,15 +124,15 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
   /// \brief Parse parameter file to find the map files
   virtual Int_t LoadDetectorMaps(QwParameterFile& file);
   /// Mandatory map file definition
-  virtual Int_t LoadChannelMap(TString mapfile) = 0;
+  virtual Int_t LoadChannelMap( const TString& mapfile) = 0;
   /// Mandatory parameter file definition
-  virtual Int_t LoadInputParameters(TString mapfile) = 0;
+  virtual Int_t LoadInputParameters( const TString& mapfile) = 0;
   /// Optional geometry definition
-  virtual Int_t LoadGeometryDefinition(TString mapfile) { return 0; };
+  virtual Int_t LoadGeometryDefinition(const TString& mapfile) { return 0; };
   /// Optional crosstalk definition
-  virtual Int_t LoadCrosstalkDefinition(TString mapfile) { return 0; };
+  virtual Int_t LoadCrosstalkDefinition(const TString& mapfile) { return 0; };
   /// Optional event cut file
-  virtual Int_t LoadEventCuts(TString mapfile) { return 0; };
+  virtual Int_t LoadEventCuts( const TString& mapfile) { return 0; };
 
   /// Set event type mask
   void SetEventTypeMask(const UInt_t mask) { fEventTypeMask = mask; };
@@ -141,16 +142,16 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
 
   virtual void  ClearEventData() = 0;
 
-  virtual Int_t ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words) = 0;
+  virtual Int_t ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words) = 0;
 
-  virtual Int_t ProcessEvBuffer(const UInt_t event_type, const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words){
+  virtual Int_t ProcessEvBuffer(UInt_t event_type, ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words){
     /// TODO:  Subsystems should be changing their ProcessEvBuffer routines to take the event_type as the first
     ///  argument.  But in the meantime, default to just calling the non-event-type-aware ProcessEvBuffer routine.
     if (((0x1 << (event_type - 1)) & this->GetEventTypeMask()) == 0) return 0;
     else return this->ProcessEvBuffer(roc_id, bank_id, buffer, num_words);
   };
   /// TODO:  The non-event-type-aware ProcessEvBuffer routine should be replaced with the event-type-aware version.
-  virtual Int_t ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words) = 0;
+  virtual Int_t ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words) = 0;
 
   virtual void  ProcessEvent() = 0;
   /*! \brief Request processed data from other subsystems for internal
@@ -188,7 +189,7 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
   };
   /// Construct the objects for this subsystem with a prefix
   virtual void  ConstructObjects(TString &prefix) {
-    ConstructObjects((TDirectory*) NULL, prefix);
+    ConstructObjects((TDirectory*) nullptr, prefix);
   };
   /// \brief Construct the objects for this subsystem in a folder with a prefix
   virtual void  ConstructObjects(TDirectory *folder, TString &prefix) { };
@@ -200,7 +201,7 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
   /// Construct the histograms for this subsystem
   virtual void  ConstructHistograms() {
     TString tmpstr("");
-    ConstructHistograms((TDirectory*) NULL, tmpstr);
+    ConstructHistograms((TDirectory*) nullptr, tmpstr);
   };
   /// Construct the histograms for this subsystem in a folder
   virtual void  ConstructHistograms(TDirectory *folder) {
@@ -209,7 +210,7 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
   };
   /// Construct the histograms for this subsystem with a prefix
   virtual void  ConstructHistograms(TString &prefix) {
-    ConstructHistograms((TDirectory*) NULL, prefix);
+    ConstructHistograms((TDirectory*) nullptr, prefix);
   };
   /// \brief Construct the histograms for this subsystem in a folder with a prefix
   virtual void  ConstructHistograms(TDirectory *folder, TString &prefix) = 0;
@@ -238,7 +239,7 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
   // @}
 
 
- 
+
 
   /// \name Expert tree construction and maintenance
   /// These functions are not purely virtual, since not every subsystem is
@@ -262,9 +263,9 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
   /// \brief Construct the tree for this subsystem in a folder with a prefix
   virtual void  ConstructTree(TDirectory *folder, TString &prefix) { return; };
   /// \brief Fill the tree for this subsystem
-  virtual void  FillTree() { return; };
+  virtual void  FillTree() {};
   /// \brief Delete the tree for this subsystem
-  virtual void  DeleteTree() { return; };
+  virtual void  DeleteTree() {};
   // @}
 
   /// \brief Print some information about the subsystem
@@ -286,18 +287,18 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
 
   /*! \brief Tell the object that it will decode data from this ROC and sub-bank
    */
-  virtual Int_t RegisterROCNumber(const ROCID_t roc_id, const BankID_t bank_id = 0);
+  virtual Int_t RegisterROCNumber(ROCID_t roc_id, BankID_t bank_id = 0);
 
   /*! \brief Tell the object that it will decode data from this sub-bank in the ROC currently open for registration
    */
-  Int_t RegisterSubbank(const BankID_t bank_id);
+  Int_t RegisterSubbank(BankID_t bank_id);
 
-  Int_t RegisterMarkerWord(const UInt_t markerword);
+  Int_t RegisterMarkerWord(UInt_t markerword);
 
   void RegisterRocBankMarker(QwParameterFile &mapstr);
 
   Int_t GetSubbankIndex() const { return GetSubbankIndex(fCurrentROC_ID, fCurrentBank_ID); }
-  Int_t GetSubbankIndex(const ROCID_t roc_id, const BankID_t bank_id) const;
+  Int_t GetSubbankIndex(ROCID_t roc_id, BankID_t bank_id) const;
   void  SetDataLoaded(Bool_t flag){fIsDataLoaded = flag;};
 
  public:
@@ -305,9 +306,9 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
     Int_t rocindex  = FindIndex(fROC_IDs, roc_id);
     if (rocindex>=0){
       Int_t bankindex = FindIndex(fBank_IDs[rocindex],bank_id);
-      if (bankindex>=0 && fMarkerWords.at(rocindex).at(bankindex).size()>0){
-	std::vector<UInt_t> m = fMarkerWords.at(rocindex).at(bankindex);
-	marker.insert(marker.end(), m.begin(), m.end());
+      if (bankindex>=0 && !fMarkerWords.at(rocindex).at(bankindex).empty()){
+        const std::vector<UInt_t>& m = fMarkerWords.at(rocindex).at(bankindex);
+        marker.insert(marker.end(), m.begin(), m.end());
       }
     }
   }
@@ -318,14 +319,14 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
     {
       Int_t index = -1;
       for (size_t i=0 ; i < myvec.size(); i++ ){
-	if (myvec[i]==value){
-	  index=i;
-	  break;
-	}
+        if (myvec[i]==value){
+          index=i;
+          break;
+        }
       }
       return index;
     };
-  
+
  protected:
 
   TString  fSystemName; ///< Name of this subsystem
@@ -339,7 +340,7 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
  protected:
 
   ROCID_t  fCurrentROC_ID; ///< ROC ID that is currently being processed
-  BankID_t fCurrentBank_ID; ///< Bank ID (and Marker word) that is currently being processed; 
+  BankID_t fCurrentBank_ID; ///< Bank ID (and Marker word) that is currently being processed;
 
   /// Vector of ROC IDs associated with this subsystem
   std::vector<ROCID_t> fROC_IDs;
@@ -350,17 +351,16 @@ class VQwSubsystem: virtual public VQwSubsystemCloneable, public MQwHistograms, 
 
  protected:
 
-  // Comparison of type
+  virtual // Comparison of type
   Bool_t Compare(VQwSubsystem* source) {
     return (typeid(*this) == typeid(*source));
   }
 
- private:
-
-  // Private constructor (not implemented, will throw linker error on use)
-  VQwSubsystem();
+ public:
+  // No default constructor
+  VQwSubsystem() = delete;
 
 }; // class VQwSubsystem
 
 
-#endif // __VQWSUBSYSTEM__
+#endif // VQWSUBSYSTEM_H

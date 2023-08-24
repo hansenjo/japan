@@ -5,8 +5,8 @@
 * Time-stamp: <2007-05-08 15:40>                           *
 \**********************************************************/
 
-#ifndef __QwVQWK_CHANNEL__
-#define __QwVQWK_CHANNEL__
+#ifndef QwVQWK_CHANNEL_H
+#define QwVQWK_CHANNEL_H
 
 // System headers
 #include <vector>
@@ -65,7 +65,7 @@ class QwVQWK_Channel: public VQwHardwareChannel, public MQwMockable {
     InitializeChannel(name, datatosave);
     SetVQWKSaturationLimt(8.5);//set the default saturation limit
   };
-  QwVQWK_Channel(const QwVQWK_Channel& value): 
+  QwVQWK_Channel(const QwVQWK_Channel& value):
     VQwHardwareChannel(value), MQwMockable(value),
     fBlocksPerEvent(value.fBlocksPerEvent),
     fNumberOfSamples_map(value.fNumberOfSamples_map),
@@ -81,7 +81,7 @@ class QwVQWK_Channel: public VQwHardwareChannel, public MQwMockable {
   {
     *this = value;
   };
-  virtual ~QwVQWK_Channel() { };
+  virtual ~QwVQWK_Channel() = default;
 
 
   using VQwHardwareChannel::Clone;
@@ -103,7 +103,7 @@ class QwVQWK_Channel: public VQwHardwareChannel, public MQwMockable {
     // This will be checked against the no.of samples read by the module
     fNumberOfSamples_map = num_samples_map;
   };
-  
+
   void  ClearEventData();
 
   /// Internally generate random event data
@@ -150,9 +150,9 @@ class QwVQWK_Channel: public VQwHardwareChannel, public MQwMockable {
   VQwHardwareChannel& operator*=(const VQwHardwareChannel* input);
   VQwHardwareChannel& operator/=(const VQwHardwareChannel* input);
 
-  const QwVQWK_Channel operator+ (const QwVQWK_Channel &value) const;
-  const QwVQWK_Channel operator- (const QwVQWK_Channel &value) const;
-  const QwVQWK_Channel operator* (const QwVQWK_Channel &value) const;
+  QwVQWK_Channel operator+ (const QwVQWK_Channel &value) const;
+  QwVQWK_Channel operator- (const QwVQWK_Channel &value) const;
+  QwVQWK_Channel operator* (const QwVQWK_Channel &value) const;
   void Sum(const QwVQWK_Channel &value1, const QwVQWK_Channel &value2);
   void Difference(const QwVQWK_Channel &value1, const QwVQWK_Channel &value2);
   void Ratio(const QwVQWK_Channel &numer, const QwVQWK_Channel &denom);
@@ -164,8 +164,8 @@ class QwVQWK_Channel: public VQwHardwareChannel, public MQwMockable {
 
   void AccumulateRunningSum(const QwVQWK_Channel& value, Int_t count=0, Int_t ErrorMask=0xFFFFFFF);
   void AccumulateRunningSum(const VQwHardwareChannel *value, Int_t count=0, Int_t ErrorMask=0xFFFFFFF){
-    const QwVQWK_Channel *tmp_ptr = dynamic_cast<const QwVQWK_Channel*>(value);
-    if (tmp_ptr != NULL) AccumulateRunningSum(*tmp_ptr, count, ErrorMask);
+    const auto *tmp_ptr = dynamic_cast<const QwVQWK_Channel*>(value);
+    if (tmp_ptr != nullptr) AccumulateRunningSum(*tmp_ptr, count, ErrorMask);
   };
   ////deaccumulate one value from the running sum
   inline void DeaccumulateRunningSum(const QwVQWK_Channel& value, Int_t ErrorMask=0xFFFFFFF){
@@ -200,14 +200,14 @@ class QwVQWK_Channel: public VQwHardwareChannel, public MQwMockable {
   Int_t ApplyHWChecks(); //Check for harware errors in the devices. This will return the device error code.
 
   void IncrementErrorCounters();//update the error counters based on the internal fErrorFlag
-  
+
   /*End*/
 
   void  ConstructHistograms(TDirectory *folder, TString &prefix);
   void  FillHistograms();
 
-  void  ConstructBranchAndVector(TTree *tree, TString &prefix, std::vector<Double_t> &values);
-  void  ConstructBranch(TTree *tree, TString &prefix);
+  void  ConstructBranchAndVector( TTree *tree, const TString& prefix, std::vector<Double_t> &values);
+  void  ConstructBranch( TTree *tree, const TString& prefix);
   void  FillTreeVector(std::vector<Double_t> &values) const;
 
   Int_t GetRawValue(size_t element) const {
@@ -325,17 +325,17 @@ private:
   size_t fNumberOfSamples;     ///< Number of samples  read through the module
   size_t fNumberOfSamples_map; ///< Number of samples in the expected to  read through the module. This value is set in the QwBeamline map file
 
- 
+
 
   // Set of error counters for each HW test.
-  Int_t fErrorCount_HWSat;    ///< check to see ADC channel is saturated 
-  Int_t fErrorCount_sample;   ///< for sample size check                 
+  Int_t fErrorCount_HWSat;    ///< check to see ADC channel is saturated
+  Int_t fErrorCount_sample;   ///< for sample size check
   Int_t fErrorCount_SW_HW;    ///< HW_sum==SW_sum check
   Int_t fErrorCount_Sequence; ///< sequence number check
   Int_t fErrorCount_SameHW;   ///< check to see ADC returning same HW value
   Int_t fErrorCount_ZeroHW;   ///< check to see ADC returning zero
 
-  Int_t fNumEvtsWithEventCutsRejected; ///< Counts the Event cut rejected events 
+  Int_t fNumEvtsWithEventCutsRejected; ///< Counts the Event cut rejected events
 
 
 
@@ -364,8 +364,8 @@ private:
   Bool_t bSequence_number;
 
 private:
-  
-  
+
+
 
 
 

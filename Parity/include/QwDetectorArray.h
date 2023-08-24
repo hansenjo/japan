@@ -8,8 +8,8 @@
 ///
 /// \ingroup QwAnalysis_ADC
 
-#ifndef __QWDETECTORARRAY__
-#define __QWDETECTORARRAY__
+#ifndef QWDETECTORARRAY_H
+#define QWDETECTORARRAY_H
 
 // System headers
 #include <vector>
@@ -34,11 +34,10 @@ class QwDetectorArray:
    *
    *
    ******************************************************************/
- private:
-  /// Private default constructor (not implemented, will throw linker error on use)
-  QwDetectorArray();
 
  public:
+  /// No default constructor
+  QwDetectorArray() = delete;
   /// Constructor with name
   QwDetectorArray(const TString& name)
   : VQwSubsystem(name),VQwSubsystemParity(name),bNormalization(kFALSE)
@@ -58,7 +57,7 @@ class QwDetectorArray:
     fMainDetID(source.fMainDetID)
   { }
   /// Virtual destructor
-  virtual ~QwDetectorArray() { };
+  virtual ~QwDetectorArray() = default;
 
   /*  Member functions derived from VQwSubsystemParity. */
 
@@ -67,9 +66,9 @@ class QwDetectorArray:
 
 
   void ProcessOptions(QwOptions &options);//Handle command line options
-  Int_t LoadChannelMap(TString mapfile);
-  Int_t LoadInputParameters(TString pedestalfile);
-  Int_t LoadEventCuts(TString filename);
+  Int_t LoadChannelMap( const TString& mapfile);
+  Int_t LoadInputParameters( const TString& pedestalfile);
+  Int_t LoadEventCuts( const TString& filename);
   Bool_t ApplySingleEventCuts();//Check for good events by stting limits on the devices readings
 
   Bool_t  CheckForBurpFail(const VQwSubsystem *subsys);
@@ -82,8 +81,8 @@ class QwDetectorArray:
   void UpdateErrorFlag(const VQwSubsystem *ev_error);
 
 
-  Int_t ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
-  Int_t ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
 
   void  ClearEventData();
   Bool_t IsGoodEvent();
@@ -154,7 +153,7 @@ class QwDetectorArray:
   };
 
   void  PrintValue() const;
-  void  WritePromptSummary(QwPromptSummary *ps, TString type);
+  void  WritePromptSummary( QwPromptSummary *ps, const TString& type);
   void  PrintInfo() const;
   void  PrintDetectorID() const;
 
@@ -174,7 +173,7 @@ class QwDetectorArray:
   std::vector <QwDetectorArrayID> fMainDetID;
 
 
-  
+
 /*
 *	Maybe have an array of QwIntegrationPMT to describe the Sector, Ring, Slice structure?  Maybe hold Ring 5 out and have it described as one list by Sector and slice?
 	Need a way to define the correlations to all beam parameters for each element.
@@ -205,6 +204,7 @@ class QwDetectorArray:
 
 };
 
+DeclareSubsystemFactory(QwDetectorArray);
 
 class QwDetectorArrayID
 {
@@ -237,16 +237,3 @@ class QwDetectorArrayID
 
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-

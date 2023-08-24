@@ -8,10 +8,10 @@
  * CEBAF Data Acquisition Group, 12000 Jefferson Ave., Newport News, VA 23606
  * Email: coda@cebaf.gov  Tel: (804) 249-7101  Fax: (804) 249-7363
  *-----------------------------------------------------------------------------
- * 
+ *
  * Description:
  *	Byte swapping utilities
- *	
+ *
  * Author:  Jie Chen, CEBAF Data Acquisition Group
  *
  * Revision History:
@@ -33,7 +33,7 @@
  *
 *	  Revision 1.1  95/01/20  14:00:33  14:00:33  abbottd (David Abbott)
 *	  Initial revision
-*	  
+*
  *	  Revision 1.4  1994/08/12  17:15:18  chen
  *	  handle char string data type correctly
  *
@@ -54,7 +54,7 @@
 *
  *	  Revision 1.1  93/08/30  19:13:49  19:13:49  chen (Jie chen)
  *	  Initial revision
- *	  
+ *
  */
 
 #ifdef VXWORKS
@@ -93,7 +93,7 @@ typedef struct _lk
 static evStack *init_evStack()
 {
   evStack *evhead;
-  
+
   evhead = (evStack *)malloc(1*sizeof(evStack));
   if(evhead == NULL){
     fprintf(stderr,"Cannot allocate memory for evStack\n");
@@ -191,7 +191,7 @@ static void evStack_free(evStack *head)
  * get integer 32 bit input and output swapped byte      *
  * integer. input is not changed                         *
  ********************************************************/
-int int_swap_byte (int input) 
+int int_swap_byte (int input)
 {
   int temp, i, tt, len;
   char *p, *q;
@@ -238,7 +238,7 @@ void swapped_intcpy(int *des,char *source,int size)
   int temp,des_temp;
   int i,j,int_len;
   char *p, *q, *d;
-  
+
   int_len = sizeof(int);
   d = (char *)des;
 
@@ -262,7 +262,7 @@ void swapped_shortcpy (short *des,char *source,int size)
   short temp, des_temp;
   int  i, j, short_len;
   char *p, *q, *d;
-  
+
   short_len = sizeof(short);
   d = (char *)des;
 
@@ -286,7 +286,7 @@ void swapped_longcpy(double *des,char *source,int size)
   double temp, des_temp;
   int  i, j, long_len;
   char *p, *q, *d;
-  
+
   long_len = sizeof (double);
   d = (char *)des;
 
@@ -304,7 +304,7 @@ void swapped_longcpy(double *des,char *source,int size)
 /*************************************************************
  *   int swapped_fread(void *ptr, int size, int n_itmes,file)*
  *   fread from a file stream, but return swapped result     *
- ************************************************************/ 
+ ************************************************************/
 int swapped_fread(int *ptr,int size,int n_items,FILE *stream)
 {
   char *temp_ptr;
@@ -318,7 +318,7 @@ int swapped_fread(int *ptr,int size,int n_items,FILE *stream)
   free(temp_ptr);
   return(nbytes);
 }
-	   
+
 /***********************************************************
  *    void swapped_memcpy(char *buffer,char *source,size)  *
  * swapped memory copy from source to buffer accroding     *
@@ -329,12 +329,12 @@ void swapped_memcpy(char *buffer,char *source,int size)
   evStack  *head, *p;
   LK_AHEAD lk;
   int      int_len, short_len, long_len;
-  int      i, j, depth, current_type = 0;
+  int      i, j, /*depth,*/ current_type = 0;
   int      header1, header2;
   int      ev_size, ev_tag, ev_num, ev_type;
   int      bk_size, bk_tag, bk_num, bk_type;
   int      sg_size, sg_tag,         sg_type;
-  short    pk_size, pk_tag, pack;
+  short    pk_size, /*pk_tag,*/ pack;
   int      temp;
   short    temp2;
   double   temp8;
@@ -397,7 +397,7 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	bk_tag = (header2 >> 16) & (0x0000ffff);
 	bk_type = (header2 >> 8) & (0x000000ff);
 	bk_num = (header2) & (0x000000ff);
-	depth = head->length;  /* tree depth */
+	//depth = head->length;  /* tree depth */
 	if (bk_type >= 0x10){  /* contains children */
 	  evStack_pushon((bk_size+1)*2,i-2,bk_type,bk_tag,bk_num,head);
 	  lk.head_pos = i + 2;
@@ -443,7 +443,7 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	  i++;
 	}
 	else{
-	  pk_tag = (pack >> 8) & (0x00ff);
+	  //pk_tag = (pack >> 8) & (0x00ff);
 	  pk_size = (pack) & (0x00ff);
 	  current_type = lk.type;
 	  lk.head_pos = i + pk_size + 1;
@@ -466,14 +466,14 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	break;
       case 0x4:   /* short integer     */
       case 0x5:   /* unsigned integer  */
-      case 0x30:  
+      case 0x30:
       case 0x34:
       case 0x35:
 	for(j = i; j < lk.head_pos; j=j+1){
 	  swapped_shortcpy (&temp2,&(source[j*2]),short_len);
 	  memcpy (&(buffer[j*2]),(void *)&temp2,short_len);
 	}
-	i = lk.head_pos;	
+	i = lk.head_pos;
 	break;
       case 0x3:  /* char string        */
       case 0x6:
@@ -481,7 +481,7 @@ void swapped_memcpy(char *buffer,char *source,int size)
       case 0x36:
       case 0x37:
 	memcpy(&(buffer[i*2]),&(source[i*2]),(lk.head_pos - i)*2);
-	i = lk.head_pos;		
+	i = lk.head_pos;
 	break;
       case 0x8:  /* 64 bit */
       case 0xA:  /* 64 bit VAX floating point */
@@ -489,7 +489,7 @@ void swapped_memcpy(char *buffer,char *source,int size)
 	  swapped_shortcpy ((short *)&temp8,&(source[j*2]),long_len);
 	  memcpy (&(buffer[j*2]), (void *)&temp8,long_len);
 	}
-	i = lk.head_pos;		
+	i = lk.head_pos;
 	break;
       case 0xF:  /* repeating structure, for now */
 	for(j = i; j < lk.head_pos; j=j+2){
@@ -506,5 +506,3 @@ void swapped_memcpy(char *buffer,char *source,int size)
   }
   evStack_free (head);
 }
-
-

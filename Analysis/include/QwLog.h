@@ -113,11 +113,11 @@ class QwLog : public std::ostream {
 
     /*! \brief Determine whether the function name matches a specified list of regular expressions
      */
-    bool                        IsDebugFunction(const string func_name);
+    bool                        IsDebugFunction(const string& func_name);
 
     /*! \brief Initialize the log file with name 'name'
      */
-    void                        InitLogFile(const std::string name, const std::ios_base::openmode mode = kAppend);
+    void                        InitLogFile(const std::string& name, const std::ios_base::openmode mode = kAppend);
 
     /*! \brief Set the screen color mode
      */
@@ -134,7 +134,7 @@ class QwLog : public std::ostream {
     /*! \brief Set the stream log level
      */
     QwLog&                      operator()(const QwLogLevel level,
-                                           const std::string func_sig  = "<unknown>");
+                                           const std::string& func_sig  = "<unknown>");
 
     /*! \brief Stream an object to the output stream
      */

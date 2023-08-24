@@ -15,29 +15,28 @@
 template<class VQwSubsystem_t>
 class QwOmnivore: public VQwSubsystem_t {
 
-  private:
-    /// Private default constructor (not implemented, will throw linker error on use)
-    QwOmnivore();
+public:
+    /// No default constructor
+    QwOmnivore() = delete;
 
-  public:
     /// Constructor with name
-    QwOmnivore(const TString& name): VQwSubsystem(name),VQwSubsystem_t(name) { };
+    explicit QwOmnivore(const TString& name): VQwSubsystem(name),VQwSubsystem_t(name) { };
     /// Copy constructor
     QwOmnivore(const QwOmnivore& source)
     : VQwSubsystem(source),VQwSubsystem_t(source)
     { }
     /// Virtual destructor
-    virtual ~QwOmnivore() { };
+    virtual ~QwOmnivore() = default;
 
     /// Map file definition
-    Int_t LoadChannelMap(TString mapfile) { return 0; };
+    Int_t LoadChannelMap( const TString& mapfile ) { return 0; };
     /// Parameter file definition
-    Int_t LoadInputParameters(TString mapfile) { return 0; };
+    Int_t LoadInputParameters( const TString& mapfile ) { return 0; };
     /// Geometry definition for tracking subsystems
-    Int_t LoadGeometryDefinition(TString mapfile) { return 0; };
+    Int_t LoadGeometryDefinition( const TString& mapfile ) { return 0; };
 
     /// Load the event cuts file
-    Int_t LoadEventCuts(TString filename) { return 0; };
+    Int_t LoadEventCuts( const TString& filename) { return 0; };
     /// Apply the single event cuts
     Bool_t ApplySingleEventCuts() { return kTRUE; };
 
@@ -81,7 +80,7 @@ class QwOmnivore: public VQwSubsystem_t {
     /// TODO:  The non-event-type-aware ProcessEvBuffer routine should be replaced with the event-type-aware version.
     Int_t ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words) {
       /// Om nom nom nom
-      UInt_t cheeseburger;
+      volatile UInt_t cheeseburger = 0;
       for (UInt_t word = 0; word < num_words; word++)
         cheeseburger += buffer[word]; // (addition to prevent compiler from optimizing local away)
       return 0; // my plate is empty

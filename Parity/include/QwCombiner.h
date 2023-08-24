@@ -38,11 +38,11 @@ class QwCombiner:public VQwDataHandler, public MQwDataHandlerCloneable<QwCombine
 			  QwSubsystemArrayParity& diff);
 
     void ProcessData();
-  
+
   protected:
-  
+
     /// Default constructor (Protected for child class access)
-    QwCombiner() { };
+    QwCombiner() = default;
 
     /// Error flag mask
     UInt_t fErrorFlagMask;
@@ -67,5 +67,6 @@ inline std::ostream& operator<< (std::ostream& stream, const QwCombiner::EQwHand
   return stream;
 }
 
+DeclareHandlerFactory(QwCombiner);
 
 #endif // QWCOMBINER_H_

@@ -5,8 +5,8 @@
 * Time-stamp: <2011-06-16>                               *
 \********************************************************/
 
-#ifndef __QWCLOCK__
-#define __QWCLOCK__
+#ifndef QWCLOCK_H
+#define QWCLOCK_H
 
 // System headers
 #include <vector>
@@ -37,7 +37,7 @@ template<typename T>
 class QwClock : public VQwClock {
 /////
  public:
-  QwClock() { };
+  QwClock() = default;
   QwClock(TString subsystemname, TString name, TString type = ""){
     SetSubsystemName(subsystemname);
     InitializeChannel(subsystemname, name, "raw", type);
@@ -49,7 +49,7 @@ class QwClock : public VQwClock {
     fClock(source.fClock),
     fNormalizationValue(source.fNormalizationValue)
   { }
-  virtual ~QwClock() { };
+  virtual ~QwClock() = default;
 
   void LoadChannelParameters(QwParameterFile &paramfile){
     fClock.LoadChannelParameters(paramfile);
@@ -119,7 +119,7 @@ class QwClock : public VQwClock {
   void  ConstructHistograms(TDirectory *folder, TString &prefix);
   void  FillHistograms();
 
-  void  ConstructBranchAndVector(TTree *tree, TString &prefix, std::vector<Double_t> &values);
+  void  ConstructBranchAndVector( TTree *tree, const TString& prefix, std::vector<Double_t> &values);
   void  ConstructBranch(TTree *tree, TString &prefix);
   void  ConstructBranch(TTree *tree, TString &prefix, QwParameterFile& modulelist);
   void  FillTreeVector(std::vector<Double_t> &values) const;
@@ -158,4 +158,4 @@ class QwClock : public VQwClock {
 
 };
 
-#endif // __QWCLOCK__
+#endif // QWCLOCK_H

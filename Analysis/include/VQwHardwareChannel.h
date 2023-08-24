@@ -5,8 +5,8 @@
 * Date:   Tue Mar 29 13:08:12 EDT 2011                     *
 \**********************************************************/
 
-#ifndef __VQWHARDWARECHANNEL__
-#define __VQWHARDWARECHANNEL__
+#ifndef VQWHARDWARECHANNEL_H
+#define VQWHARDWARECHANNEL_H
 
 // System headers
 #include <cmath>
@@ -37,23 +37,23 @@ public:
   VQwHardwareChannel();
   VQwHardwareChannel(const VQwHardwareChannel& value);
   VQwHardwareChannel(const VQwHardwareChannel& value, VQwDataElement::EDataToSave datatosave);
-  virtual ~VQwHardwareChannel() { };
+  virtual ~VQwHardwareChannel() = default;
 
   void ProcessOptions();
 
   virtual VQwHardwareChannel* Clone() const{
-    return Clone(this->fDataToSave);
+    return Clone(fDataToSave);
   };
   virtual VQwHardwareChannel* Clone(VQwDataElement::EDataToSave datatosave) const = 0;
 
   using VQwDataElement::UpdateErrorFlag;
 
   /*! \brief Get the number of data words in this data element */
-  size_t GetNumberOfDataWords() {return fNumberOfDataWords;}
+  size_t GetNumberOfDataWords() const {return fNumberOfDataWords;}
 
   /*! \brief Get the number of subelements in this data element */
-  size_t GetNumberOfSubelements() {return fNumberOfSubElements;};
-  
+  size_t GetNumberOfSubelements() const {return fNumberOfSubElements;};
+
   Int_t GetRawValue() const       {return this->GetRawValue(0);};
   Double_t GetValue() const       {return this->GetValue(0);};
   Double_t GetValueM2() const     {return this->GetValueM2(0);};
@@ -67,10 +67,10 @@ public:
     RangeCheck(element);
     Double_t width;
     if (fGoodEventCount>0){
-      width = (GetValueError(element)*std::sqrt(Double_t(fGoodEventCount))); 
+      width = (GetValueError(element)*std::sqrt(Double_t(fGoodEventCount)));
     } else {
       width = 0.0;
-    } 
+    }
     return width;
   };
 
@@ -86,7 +86,7 @@ public:
   void  InitializeChannel(TString name){InitializeChannel(name, "raw");};
   virtual void  InitializeChannel(TString name, TString datatosave) = 0;
   virtual void  InitializeChannel(TString subsystem, TString instrumenttype, TString name, TString datatosave) = 0;
-  
+
   //Check for harware errors in the devices. This will return the device error code.
   virtual Int_t ApplyHWChecks() = 0;
 
@@ -94,7 +94,10 @@ public:
 
   virtual Bool_t ApplySingleEventCuts() = 0;//check values read from modules are at desired level
 
-  virtual Bool_t CheckForBurpFail(const VQwHardwareChannel *event){
+  virtual Bool_t CheckForBurpFail(const VQwDataElement* ev_error){
+    const auto* event = dynamic_cast<const VQwHardwareChannel*>(ev_error);
+    if( !event )
+      return kFALSE;
     Bool_t foundburp = kFALSE;
     if (fBurpThreshold>0){
       Double_t diff = this->GetValue() - event->GetValue();
@@ -109,15 +112,15 @@ public:
     if (foundburp){
       fErrorFlag |= kErrorFlag_BurpCut;
     }
-    
+
     return foundburp;
   }
-  
-  /*! \brief Set the upper and lower limits (fULimit and fLLimit) 
+
+  /*! \brief Set the upper and lower limits (fULimit and fLLimit)
    *         for this channel */
   void SetSingleEventCuts(Double_t min, Double_t max);
-  /*! \brief Inherited from VQwDataElement to set the upper and lower 
-   *         limits (fULimit and fLLimit), stability % and the 
+  /*! \brief Inherited from VQwDataElement to set the upper and lower
+   *         limits (fULimit and fLLimit), stability % and the
    *         error flag on this channel */
   void SetSingleEventCuts(UInt_t errorflag,Double_t min, Double_t max, Double_t stability=-1.0, Double_t BurpLevel=-1.0);
 
@@ -128,12 +131,12 @@ public:
 
   UInt_t UpdateErrorFlag() {return GetEventcutErrorFlag();};
   void UpdateErrorFlag(const VQwHardwareChannel& elem){fErrorFlag |= elem.fErrorFlag;};
-  virtual UInt_t GetErrorCode() const {return (fErrorFlag);}; 
+  virtual UInt_t GetErrorCode() const {return (fErrorFlag);};
 
   virtual  void IncrementErrorCounters()=0;
   virtual  void  ProcessEvent()=0;
- 
-  
+
+
   virtual void CalculateRunningAverage() = 0;
 //   virtual void AccumulateRunningSum(const VQwHardwareChannel *value) = 0;
 
@@ -146,15 +149,15 @@ public:
      AssignValueFrom(&value);
      Scale(scale);
   };
-    virtual void Ratio(const VQwHardwareChannel* numer, const VQwHardwareChannel* denom){
-    if (!IsNameEmpty()){
-      this->AssignValueFrom(numer); 
+  virtual void Ratio( const VQwHardwareChannel* numer, const VQwHardwareChannel* denom ) {
+    if( !IsNameEmpty() ) {
+      AssignValueFrom(numer);
       this->operator/=(denom);
-       
-        // Remaining variables
-    fGoodEventCount  = denom->fGoodEventCount;
-    fErrorFlag = (numer->fErrorFlag|denom->fErrorFlag);//error code is ORed.  
-     }
+
+      // Remaining variables
+      fGoodEventCount = denom->fGoodEventCount;
+      fErrorFlag = (numer->fErrorFlag | denom->fErrorFlag);//error code is ORed.
+    }
   }
 
   void AssignValueFrom(const VQwDataElement* valueptr) = 0;
@@ -171,15 +174,19 @@ public:
   void     SetCalibrationFactor(Double_t factor) { fCalibrationFactor = factor; kFoundGain = 1; };
   Double_t GetCalibrationFactor() const          { return fCalibrationFactor; };
 
-  void AddEntriesToList(std::vector<QwDBInterface> &row_list);
+  //void AddEntriesToList(std::vector<QwDBInterface> &row_list);
   virtual void AddErrEntriesToList(std::vector<QwErrDBInterface> &row_list) {};
 
-  
-  virtual void AccumulateRunningSum(const VQwHardwareChannel *value, Int_t count=0, Int_t ErrorMask=0xFFFFFFF){
-    if(count==0){
+
+  virtual void AccumulateRunningSum( const VQwHardwareChannel* value,
+                                     Int_t count = 0, Int_t ErrorMask = 0xFFFFFFF ) {
+    if( count == 0 ) {
       count = value->fGoodEventCount;
     }
-    if(ErrorMask ==  kPreserveError){QwError << "VQwHardwareChannel count=" << count << QwLog::endl;}
+    if( ErrorMask == kPreserveError ) {
+      QwError << "VQwHardwareChannel count=" << count << QwLog::endl;
+    }
+    //FIXME: possible infinite recursion
     AccumulateRunningSum(value, count, ErrorMask);
   };
   virtual void DeaccumulateRunningSum(const VQwHardwareChannel *value, Int_t ErrorMask=0xFFFFFFF){
@@ -191,25 +198,21 @@ public:
   virtual void MultiplyBy(const VQwHardwareChannel* valueptr) = 0;
   virtual void DivideBy(const VQwHardwareChannel* valueptr) = 0;
 
-  virtual void ConstructBranchAndVector(TTree *tree, TString& prefix, std::vector<Double_t>& values) = 0;
-  virtual void ConstructBranch(TTree *tree, TString &prefix) = 0;
-  void ConstructBranch(TTree *tree, TString &prefix, QwParameterFile& modulelist);
+  virtual void ConstructBranchAndVector( TTree *tree, const TString& prefix, std::vector<Double_t>& values) = 0;
+  virtual void ConstructBranch( TTree *tree, const TString& prefix) = 0;
+  void ConstructBranch( TTree *tree, const TString& prefix, QwParameterFile& modulelist);
   virtual void FillTreeVector(std::vector<Double_t>& values) const = 0;
 
  protected:
-  /*! \brief Set the number of data words in this data element */
-  void SetNumberOfDataWords(const UInt_t &numwords) {fNumberOfDataWords = numwords;}
   /*! \brief Set the number of data words in this data element */
   void SetNumberOfSubElements(const size_t elements) {fNumberOfSubElements = elements;};
 
   /*! \brief Set the flag indicating if raw or derived values are
    *         in this data element */
-  void SetDataToSave(TString datatosave) {
-    if      (datatosave == "raw")
-      fDataToSave = kRaw;
-    else if (datatosave == "derived")
+  void SetDataToSave(const TString& datatosave) {
+    if (datatosave == "derived")
       fDataToSave = kDerived;
-    else
+    else // if (datatosave == "raw")
       fDataToSave = kRaw; // wdc, added default fall-through
   }
   /*! \brief Set the flag indicating if raw or derived values are
@@ -232,11 +235,11 @@ public:
    *         used in accesses to subelements similar to
    *         std::vector::at(). */
   void RangeCheck(size_t element) const {
-    if (element<0 || element >= fNumberOfSubElements){
-      TString loc="VQwDataElement::RangeCheck for "
-	+this->GetElementName()+" failed for subelement "+Form("%zu",element);
+    if( element >= fNumberOfSubElements ) {
+      TString loc = "VQwDataElement::RangeCheck for "
+                    + GetElementName() + " failed for subelement "
+                    + Form("%zu", element);
       throw std::out_of_range(loc.Data());
-
     }
   };
 
@@ -277,4 +280,4 @@ protected:
 
 };   // class VQwHardwareChannel
 
-#endif // __MQWHARDWARECHANNEL__
+#endif // VQWHARDWARECHANNEL_H

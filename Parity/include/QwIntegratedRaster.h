@@ -5,8 +5,8 @@
 * Time-stamp:                                             *
 \**********************************************************/
 
-#ifndef __QwIntegratedRaster__
-#define __QwIntegratedRaster__
+#ifndef QwIntegratedRaster_h
+#define QwIntegratedRaster_h
 
 // System headers
 #include <vector>
@@ -21,7 +21,7 @@
 #include "QwTypes.h"
 
 
-class QwIntegratedRasterDetectorID{
+class QwIntegratedRasterDetectorID {
 
  public:
 
@@ -53,24 +53,22 @@ class QwIntegratedRasterDetectorID{
 *  Class:
 ******************************************************************/
 class QwIntegratedRaster : public VQwSubsystemParity, public MQwSubsystemCloneable<QwIntegratedRaster> {
-  /////  
-
- private:
-  /// Private default constructor (not implemented, will throw linker error on use)
-  QwIntegratedRaster();
+  /////
 
  public:
+  /// No default constructor
+  QwIntegratedRaster() = delete;
   /// Constructor with name
-  QwIntegratedRaster(const TString& name)
+  explicit QwIntegratedRaster(const TString& name)
   : VQwSubsystem(name),VQwSubsystemParity(name)
   { };
-  /// Copy constructor
+  /// Copy constructor£
   QwIntegratedRaster(const QwIntegratedRaster& source)
   : VQwSubsystem(source),VQwSubsystemParity(source),
     fIntegratedRasterChannel(source.fIntegratedRasterChannel)
   { }
   /// Virtual destructor
-  virtual ~QwIntegratedRaster() { };
+  virtual ~QwIntegratedRaster() = default;
 
 
   /* derived from VQwSubsystem */
@@ -80,9 +78,9 @@ class QwIntegratedRaster : public VQwSubsystemParity, public MQwSubsystemCloneab
 
 
   void ProcessOptions(QwOptions &options);//Handle command line options
-  Int_t LoadChannelMap(TString mapfile);
-  Int_t LoadInputParameters(TString pedestalfile);
-  Int_t LoadEventCuts(TString filename);//derived from VQwSubsystemParity
+  Int_t LoadChannelMap( const TString& mapfile);
+  Int_t LoadInputParameters( const TString& pedestalfile);
+  Int_t LoadEventCuts( const TString& filename);//derived from VQwSubsystemParity
   void IncrementErrorCounters();
   Bool_t ApplySingleEventCuts();//derived from VQwSubsystemParity
   void PrintErrorCounters() const;// report number of events failed due to HW and event cut faliures
@@ -102,8 +100,8 @@ class QwIntegratedRaster : public VQwSubsystemParity, public MQwSubsystemCloneab
   };
   void CalculateRunningAverage();
 
-  Int_t ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
-  Int_t ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
   void  PrintDetectorID() const;
 
   void  ClearEventData();
@@ -138,7 +136,7 @@ class QwIntegratedRaster : public VQwSubsystemParity, public MQwSubsystemCloneab
   void  FillDB(QwParityDB *db, TString datatype);
   void  FillErrDB(QwParityDB *db, TString datatype);
 #endif // __USE_DATABASE__
-  void  WritePromptSummary(QwPromptSummary *ps, TString type);
+  void  WritePromptSummary( QwPromptSummary *ps, const TString& type);
 
   const VQwDataElement* GetChannel(const TString name) const;
 
@@ -148,13 +146,13 @@ class QwIntegratedRaster : public VQwSubsystemParity, public MQwSubsystemCloneab
   void PrintInfo() const;
 
 /////
-protected: 
- 
+protected:
+
   // EQwPMTInstrumentType GetDetectorTypeID(TString name);
- 
+
   Int_t GetDetectorIndex(TString name);
 
-  std::vector <QwIntegratedRasterChannel<QwVQWK_Channel> >      fIntegratedRasterChannel;  
+  std::vector <QwIntegratedRasterChannel<QwVQWK_Channel> >      fIntegratedRasterChannel;
   std::vector <QwIntegratedRasterDetectorID>   fDetectorIDs;
 
 protected:
@@ -167,7 +165,6 @@ private:
 
 };
 
-
-
+DeclareSubsystemFactory(QwIntegratedRaster);
 
 #endif

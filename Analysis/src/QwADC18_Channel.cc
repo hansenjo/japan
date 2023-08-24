@@ -86,7 +86,7 @@ Int_t QwADC18_Channel::GetBufferOffset(Int_t moduleindex, Int_t channelindex)
 /********************************************************/
 Int_t QwADC18_Channel::ApplyHWChecks()
 {
-  Bool_t fEventIsGood=kTRUE;
+  //Bool_t fEventIsGood=kTRUE;
   Bool_t bStatus;
   if (bEVENTCUTMODE>0){//Global switch to ON/OFF event cuts set at the event cut file
 
@@ -106,7 +106,7 @@ Int_t QwADC18_Channel::ApplyHWChecks()
     }
 
     if (!MatchSequenceNumber(fSequenceNo_Prev)){//we have a sequence number error
-      fEventIsGood=kFALSE;
+//      fEventIsGood=kFALSE;
       fErrorFlag|=kErrorFlag_Sequence;
       if (bDEBUG)       QwWarning<<" QwQWVK_Channel "<<GetElementName()<<" Sequence number previous value = "<<fSequenceNo_Prev<<" Current value= "<< GetSequenceNumber()<<QwLog::endl;
     }
@@ -132,7 +132,7 @@ void QwADC18_Channel::IncrementErrorCounters(){
     fErrorCount_SameHW++; //increment the hw error counter
   if ( (kErrorFlag_ZeroHW &  fErrorFlag)==kErrorFlag_ZeroHW)
     fErrorCount_ZeroHW++; //increment the hw error counter
-  if ( ((kErrorFlag_EventCut_L &  fErrorFlag)==kErrorFlag_EventCut_L) 
+  if ( ((kErrorFlag_EventCut_L &  fErrorFlag)==kErrorFlag_EventCut_L)
        || ((kErrorFlag_EventCut_U &  fErrorFlag)==kErrorFlag_EventCut_U)){
     fNumEvtsWithEventCutsRejected++; //increment the event cut error counter
   }
@@ -193,7 +193,7 @@ void QwADC18_Channel::InitializeChannel(TString name, TString datatosave)
 
   fRunningSum            = 0;
 
-  fADC_Same_NumEvt       = 0;
+//  fADC_Same_NumEvt       = 0;
   fSequenceNo_Prev       = 0;
   fSequenceNo_Counter    = 0;
 
@@ -202,7 +202,6 @@ void QwADC18_Channel::InitializeChannel(TString name, TString datatosave)
   bEVENTCUTMODE          = 0;
 
   //std::cout<< "name = "<<name<<" error count same _HW = "<<fErrorCount_SameHW <<std::endl;
-  return;
 }
 
 /********************************************************/
@@ -330,8 +329,8 @@ Int_t QwADC18_Channel::ProcessDataWord(UInt_t rawd)
 {
   // "Actual" values from data word
   UInt_t act_dtype  = (rawd & mask2422x) >> 22;
-  UInt_t act_chan   = (act_dtype != 4) ?
-                      ((rawd & mask3029x) >> 29) : 0;
+//  UInt_t act_chan   = (act_dtype != 4) ?
+//                      ((rawd & mask3029x) >> 29) : 0;
   UInt_t act_dvalue = (rawd & mask2625x) >> 25;
   UInt_t act_snum   = (act_dtype == 1 || act_dtype == 2) ?
                       ((rawd & mask2118x) >> 18) : 0;
@@ -564,7 +563,7 @@ void  QwADC18_Channel::FillHistograms()
     }
 }
 
-void  QwADC18_Channel::ConstructBranchAndVector(TTree *tree, TString &prefix, std::vector<Double_t> &values)
+void  QwADC18_Channel::ConstructBranchAndVector( TTree *tree, const TString& prefix, std::vector<Double_t> &values)
 {
   if (IsNameEmpty()){
     //  This channel is not used, so skip setting up the tree.
@@ -606,7 +605,7 @@ void  QwADC18_Channel::ConstructBranchAndVector(TTree *tree, TString &prefix, st
   }
 }
 
-void  QwADC18_Channel::ConstructBranch(TTree *tree, TString &prefix)
+void  QwADC18_Channel::ConstructBranch( TTree *tree, const TString& prefix)
 {
   if (IsNameEmpty()){
     //  This channel is not used, so skip setting up the tree.
@@ -916,7 +915,7 @@ QwADC18_Channel& QwADC18_Channel::operator/= (const QwADC18_Channel &denom)
       fValue   = 0.0;
       fValueM2 = 0.0;
     } else {
-      QwVerbose << "Attempting to divide by zero in " 
+      QwVerbose << "Attempting to divide by zero in "
                 << GetElementName() << QwLog::endl;
       fValue   = 0.0;
       fValueM2 = 0.0;
@@ -1040,7 +1039,7 @@ void QwADC18_Channel::AccumulateRunningSum(const QwADC18_Channel& value, Int_t c
   if(count==0){
     count = value.fGoodEventCount;
   }
-  
+
   // Moment calculations
   Int_t n1 = fGoodEventCount;
   Int_t n2 = count;
@@ -1227,7 +1226,7 @@ Bool_t QwADC18_Channel::ApplySingleEventCuts()//This will check the limits and u
   }
   else{
     status=kTRUE;
-    //fErrorFlag=0;//we need to keep the device error codes 
+    //fErrorFlag=0;//we need to keep the device error codes
   }
 
   return status;
@@ -1245,7 +1244,7 @@ void  QwADC18_Channel::PrintErrorCounterHead()
   message += Form("%9s", "ZeroHW");
   message += Form("%9s", "EventCut");
   QwMessage << "---------------------------------------------------------------------------------------------" << QwLog::endl;
-  QwMessage << message << QwLog::endl; 
+  QwMessage << message << QwLog::endl;
   QwMessage << "---------------------------------------------------------------------------------------------" << QwLog::endl;
 }
 
@@ -1294,7 +1293,7 @@ void QwADC18_Channel::ScaledAdd(Double_t scale, const VQwHardwareChannel *value)
     this->fValueM2 = 0.0;
     this->fNumberOfSamples += input->fNumberOfSamples;
     this->fSequenceNumber  =  0;
-    this->fErrorFlag       |= (input->fErrorFlag);   
+    this->fErrorFlag       |= (input->fErrorFlag);
   }
   //   QwWarning << "Finsihed with addition"  << QwLog::endl;
   //   PrintValue();
@@ -1354,52 +1353,52 @@ void QwADC18_Channel::AddErrEntriesToList(std::vector<QwErrDBInterface> &row_lis
 
   QwErrDBInterface row;
   TString name    = GetElementName();
-  
+
   row.Reset();
   row.SetDeviceName(name);
-  row.SetErrorCodeId(1); 
+  row.SetErrorCodeId(1);
   row.SetN(fErrorCount_HWSat);
   row_list.push_back(row);
-  
+
   row.Reset();
   row.SetDeviceName(name);
   row.SetErrorCodeId(2);
   row.SetN(fErrorCount_sample);
   row_list.push_back(row);
-  
+
   row.Reset();
   row.SetDeviceName(name);
   row.SetErrorCodeId(3);
   row.SetN(fErrorCount_SW_HW);
   row_list.push_back(row);
-  
-  
+
+
   row.Reset();
   row.SetDeviceName(name);
   row.SetErrorCodeId(4);
   row.SetN(fErrorCount_Sequence);
   row_list.push_back(row);
-  
-  
+
+
   row.Reset();
   row.SetDeviceName(name);
-  row.SetErrorCodeId(5); 
+  row.SetErrorCodeId(5);
   row.SetN(fErrorCount_SameHW);
   row_list.push_back(row);
-  
+
   row.Reset();
   row.SetDeviceName(name);
-  row.SetErrorCodeId(6); 
+  row.SetErrorCodeId(6);
   row.SetN(fErrorCount_ZeroHW);
   row_list.push_back(row);
 
 
   row.Reset();
   row.SetDeviceName(name);
-  row.SetErrorCodeId(7); 
+  row.SetErrorCodeId(7);
   row.SetN(fNumEvtsWithEventCutsRejected);
   row_list.push_back(row);
   return;
-  
+
 }
 #endif

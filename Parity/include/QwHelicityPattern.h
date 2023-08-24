@@ -4,8 +4,8 @@
 * Author: P. M. King                                       *
 * Time-stamp: <2007-05-08 15:40>                           *
 \**********************************************************/
-#ifndef __QwHelicityPattern__
-#define __QwHelicityPattern__
+#ifndef QwHelicityPattern_h
+#define QwHelicityPattern_h
 
 // System headers
 #include <vector>
@@ -33,10 +33,9 @@ class QwHelicityPattern {
    *
    *
    ******************************************************************/
- private:
-  /// Private default constructor (not implemented, will throw linker error on use)
-  QwHelicityPattern();
  public:
+  /// No default constructor
+  QwHelicityPattern() = delete;
   /// Constructor with subsystem array
   QwHelicityPattern(QwSubsystemArrayParity &event, const TString &run = "0");
   /// \brief Copy constructor by reference

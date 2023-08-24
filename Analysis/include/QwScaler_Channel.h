@@ -5,10 +5,11 @@
 * Date:   Thu Sep 16 18:08:33 CDT 2009                     *
 \**********************************************************/
 
-#ifndef __QWSCALER_CHANNEL__
-#define __QWSCALER_CHANNEL__
+#ifndef QWSCALER_CHANNEL_H
+#define QWSCALER_CHANNEL_H
 
 // System headers
+#include <utility>
 #include <vector>
 
 // ROOT headers
@@ -47,9 +48,9 @@ public:
   VQwScaler_Channel(): MQwMockable() {
     InitializeChannel("","");
   }
-    
+
   VQwScaler_Channel(TString name, TString datatosave = "raw"): MQwMockable() {
-    InitializeChannel(name,datatosave);
+    InitializeChannel(std::move(name),std::move(datatosave));
   };
   VQwScaler_Channel(const VQwScaler_Channel& source)
     : VQwHardwareChannel(source),MQwMockable(source),
@@ -79,7 +80,7 @@ public:
       fNeedsExternalClock(source.fNeedsExternalClock),
       fIsDifferentialScaler(source.fIsDifferentialScaler)
   { }
-  virtual ~VQwScaler_Channel() { };
+  virtual ~VQwScaler_Channel() = default;
 
   /// \brief Initialize the fields in this object
   void  InitializeChannel(TString name, TString datatosave = "raw");
@@ -149,7 +150,7 @@ public:
   void AddChannelOffset(Double_t Offset);
   void Scale(Double_t Offset);
   void DivideBy(const VQwScaler_Channel &denom);
-  
+
 
   Int_t ApplyHWChecks(); //Check for harware errors in the devices. This will return the device error code.
 
@@ -169,20 +170,20 @@ public:
   void  ConstructHistograms(TDirectory *folder, TString &prefix);
   void  FillHistograms();
 
-  virtual void  ConstructBranchAndVector(TTree *tree, TString &prefix, std::vector<Double_t> &values) = 0;
+  virtual void  ConstructBranchAndVector( TTree *tree, const TString& prefix, std::vector<Double_t> &values) = 0;
   virtual void  FillTreeVector(std::vector<Double_t> &values) const = 0;
-  void  ConstructBranch(TTree *tree, TString &prefix);
+  void  ConstructBranch( TTree *tree, const TString& prefix);
 
 
   void AccumulateRunningSum(const VQwScaler_Channel &value, Int_t count=0, Int_t ErrorMask=0xFFFFFFF);
   void AccumulateRunningSum(const VQwHardwareChannel *value, Int_t count=0, Int_t ErrorMask=0xFFFFFFF){
-    const VQwScaler_Channel *tmp_ptr = dynamic_cast<const VQwScaler_Channel*>(value);
-    if (tmp_ptr != NULL) AccumulateRunningSum(*tmp_ptr, count, ErrorMask);
+    const auto *tmp_ptr = dynamic_cast<const VQwScaler_Channel*>(value);
+    if (tmp_ptr) AccumulateRunningSum(*tmp_ptr, count, ErrorMask);
   };
   inline void DeaccumulateRunningSum(const VQwScaler_Channel& value, Int_t ErrorMask){
     AccumulateRunningSum(value, -1, ErrorMask);
   };
-  
+
   void PrintValue() const;
   void PrintInfo() const;
   void CalculateRunningAverage();
@@ -193,7 +194,7 @@ public:
   virtual void SetNeedsExternalClock(Bool_t needed) { fNeedsExternalClock = needed; };
   virtual std::string GetExternalClockName() {  return fNormChannelName; };
   virtual void SetExternalClockPtr( const VQwHardwareChannel* clock) { fNormChannelPtr = clock; };
-  virtual void SetExternalClockName( const std::string name) { fNormChannelName = name; };
+  virtual void SetExternalClockName( const std::string& name) { fNormChannelName = name; };
 
   // Differential scalers automatically subtract the previous value
   virtual Bool_t IsDifferentialScaler() { return fIsDifferentialScaler; };
@@ -203,7 +204,7 @@ public:
 
 protected:
   VQwScaler_Channel& operator/=(const VQwScaler_Channel&);
-  
+
 protected:
   static const Bool_t kDEBUG;
 
@@ -236,7 +237,7 @@ class QwScaler_Channel: public VQwScaler_Channel
   QwScaler_Channel(): VQwScaler_Channel() { };
   QwScaler_Channel(const QwScaler_Channel& source)
     : VQwScaler_Channel(source) { };
-  QwScaler_Channel(TString name, TString datatosave = "raw")
+  explicit QwScaler_Channel(TString name, TString datatosave = "raw")
     : VQwScaler_Channel(name,datatosave) { };
   QwScaler_Channel(const QwScaler_Channel& source, VQwDataElement::EDataToSave datatosave)
     : VQwScaler_Channel(source,datatosave) { };
@@ -250,7 +251,7 @@ class QwScaler_Channel: public VQwScaler_Channel
   void  EncodeEventData(std::vector<UInt_t> &buffer);
   Int_t ProcessEvBuffer(UInt_t* buffer, UInt_t num_words_left, UInt_t index = 0);
 
-  void  ConstructBranchAndVector(TTree *tree, TString &prefix, std::vector<Double_t> &values);
+  void  ConstructBranchAndVector( TTree *tree, const TString& prefix, std::vector<Double_t> &values);
   void  FillTreeVector(std::vector<Double_t> &values) const;
 
 

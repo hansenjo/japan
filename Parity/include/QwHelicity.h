@@ -5,8 +5,8 @@
 * Time-stamp:                                             *
 \**********************************************************/
 
-#ifndef __QwHELICITY__
-#define __QwHELICITY__
+#ifndef QwHELICITY_H
+#define QwHELICITY_H
 
 // System headers
 #include <vector>
@@ -23,10 +23,13 @@
 class QwParityDB;
 #endif
 
-enum HelicityRootSavingType{kHelSaveMPS = 0,
-			    kHelSavePattern,
-                            kHelNoSave};
-// this emun vector needs to be coherent with the DetectorTypes declaration in the QwBeamLine constructor
+// this emun vector needs to be coherent with the DetectorTypes declaration
+// in the QwBeamLine constructor
+enum HelicityRootSavingType {
+  kHelSaveMPS = 0,
+  kHelSavePattern,
+  kHelNoSave
+};
 
 
 
@@ -39,17 +42,15 @@ enum HelicityRootSavingType{kHelSaveMPS = 0,
 /// \ingroup QwAnalysis_BL
 class QwHelicity: public VQwSubsystemParity, public MQwSubsystemCloneable<QwHelicity> {
 
- private:
-  /// Private default constructor (not implemented, will throw linker error on use)
-  QwHelicity();
-
  public:
+  /// No default constructor
+  QwHelicity() = delete;
   /// Constructor with name
-  QwHelicity(const TString& name);
+  explicit QwHelicity(const TString& name);
   /// Copy constructor
   QwHelicity(const QwHelicity& source);
   /// Virtual destructor
-  virtual ~QwHelicity() { }
+  virtual ~QwHelicity() = default;
 
 
 
@@ -58,9 +59,9 @@ class QwHelicity: public VQwSubsystemParity, public MQwSubsystemCloneable<QwHeli
 
   static void DefineOptions(QwOptions &options);
   void ProcessOptions(QwOptions &options);
-  Int_t LoadChannelMap(TString mapfile);
-  Int_t LoadInputParameters(TString pedestalfile);
-  Int_t LoadEventCuts(TString  filename);//Loads event cuts applicable to QwHelicity class, derived from VQwSubsystemParity
+  Int_t LoadChannelMap( const TString& mapfile);
+  Int_t LoadInputParameters( const TString& pedestalfile);
+  Int_t LoadEventCuts( const TString& filename);//Loads event cuts applicable to QwHelicity class, derived from VQwSubsystemParity
   Bool_t ApplySingleEventCuts();//Apply event cuts in the QwHelicity class, derived from VQwSubsystemParity
 
   Bool_t  CheckForBurpFail(const VQwSubsystem *ev_error){
@@ -74,12 +75,12 @@ class QwHelicity: public VQwSubsystemParity, public MQwSubsystemCloneable<QwHeli
   void UpdateErrorFlag(const VQwSubsystem *ev_error){
   };
 
-  Int_t  ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id,
+  Int_t  ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id,
 				   UInt_t* buffer, UInt_t num_words);
-  Int_t  ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words) {
+  Int_t  ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words) {
     return ProcessEvBuffer(0x1,roc_id,bank_id,buffer,num_words);
   };
-  Int_t  ProcessEvBuffer(UInt_t ev_type, const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t  ProcessEvBuffer(UInt_t ev_type, ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
   void   ProcessEventUserbitMode();//ProcessEvent has two modes Userbit and Inputregister modes
   void   ProcessEventInputRegisterMode();
   void   ProcessEventInputMollerMode();
@@ -155,26 +156,30 @@ class QwHelicity: public VQwSubsystemParity, public MQwSubsystemCloneable<QwHeli
  protected:
   void CheckPatternNum(VQwSubsystem *value);
   void MergeCounters(VQwSubsystem *value);
-  
-  Bool_t CheckIORegisterMask(const UInt_t& ioregister, const UInt_t& mask) const {
+
+  static Bool_t CheckIORegisterMask(const UInt_t& ioregister, const UInt_t& mask) {
     return ((mask != 0)&&((ioregister & mask) == mask));
   };
 
  protected:
-  enum HelicityRootSavingType{kHelSaveMPS = 0,
-			      kHelSavePattern,
-			      kHelNoSave};
+//  enum HelicityRootSavingType{kHelSaveMPS = 0,
+//			      kHelSavePattern,
+//			      kHelNoSave};
 
-  enum HelicityEncodingType{kHelUserbitMode=0,
-			    kHelInputRegisterMode,
-			    kHelLocalyMadeUp,
-			    kHelInputMollerMode};
-  // this values allow to switch the code between different helicity encoding mode.
+  // these values allow switching between different helicity encoding modes.
+  enum HelicityEncodingType {
+    kHelUserbitMode = 0,
+    kHelInputRegisterMode,
+    kHelLocalyMadeUp,
+    kHelInputMollerMode
+  };
 
-  enum InputRegisterBits{kDefaultInputReg_HelPlus     = 0x1,
-			 kDefaultInputReg_HelMinus    = 0x2,
-			 kDefaultInputReg_PatternSync = 0x4,
-			 kDefaultInputReg_FakeMPS     = 0x8000};
+  enum InputRegisterBits {
+    kDefaultInputReg_HelPlus = 0x1,
+    kDefaultInputReg_HelMinus = 0x2,
+    kDefaultInputReg_PatternSync = 0x4,
+    kDefaultInputReg_FakeMPS = 0x8000
+  };
 
   UInt_t fInputReg_FakeMPS;
   UInt_t fInputReg_HelPlus;
@@ -307,7 +312,7 @@ class QwHelicity: public VQwSubsystemParity, public MQwSubsystemCloneable<QwHeli
 
   UInt_t BuildHelicityBitPattern(Int_t patternsize);
 
-  unsigned int parity(unsigned int v) {
+  static unsigned int parity(unsigned int v) {
     // http://graphics.stanford.edu/~seander/bithacks.html#ParityParallel
     v ^= v >> 16;
     v ^= v >> 8;
@@ -318,7 +323,6 @@ class QwHelicity: public VQwSubsystemParity, public MQwSubsystemCloneable<QwHeli
 
 };
 
+DeclareSubsystemFactory(QwHelicity);
 
 #endif
-
-

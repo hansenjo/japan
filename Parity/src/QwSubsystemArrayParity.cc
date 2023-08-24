@@ -108,29 +108,29 @@ QwSubsystemArrayParity& QwSubsystemArrayParity::operator= (const QwSubsystemArra
  */
 QwSubsystemArrayParity& QwSubsystemArrayParity::operator+= (const QwSubsystemArrayParity &value)
 {
-  if (!value.empty()){
+  if( !value.empty() ) {
     fCodaEventNumber = (fCodaEventNumber == 0) ? value.fCodaEventNumber :
-        std::min(fCodaEventNumber, value.fCodaEventNumber);
-    if (this->size() == value.size()){
-      this->fErrorFlag|=value.fErrorFlag;
-      for(size_t i=0;i<value.size();i++){
-	if (value.at(i)==NULL || this->at(i)==NULL){
-	  //  Either the value or the destination subsystem
-	  //  are null
-	} else {
-	  VQwSubsystemParity *ptr1 =
-	    dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
-	  if (typeid(*ptr1)==typeid(*(value.at(i).get()))){
-	    *(ptr1) += value.at(i).get();
-	    //std::cout<<"QwSubsystemArrayParity::operator+ here where types match \n";
-	  } else {
-	    QwError << "QwSubsystemArrayParity::operator+ here where types don't match" << QwLog::endl;
-	    QwError << " typeid(ptr1)=" << typeid(ptr1).name()
-                    << " but typeid(value.at(i)))=" << typeid(value.at(i)).name()
+                       std::min(fCodaEventNumber, value.fCodaEventNumber);
+    if( this->size() == value.size() ) {
+      this->fErrorFlag |= value.fErrorFlag;
+      for( size_t i = 0; i < value.size(); i++ ) {
+        if( !value.at(i) || !this->at(i) ) {
+          //  Either the value or the destination subsystem
+          //  are null
+        } else {
+          auto* ptr1 = dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
+          auto* ptr2 = value.at(i).get();
+          if( typeid(*ptr1) == typeid(*ptr2) ) {
+            *(ptr1) += value.at(i).get();
+            //std::cout<<"QwSubsystemArrayParity::operator+ here where types match \n";
+          } else {
+            QwError << "QwSubsystemArrayParity::operator+ here where types don't match" << QwLog::endl;
+            QwError << " typeid(ptr1)=" << typeid(*ptr1).name()
+                    << " but typeid(value.at(i)))=" << typeid(*ptr2).name()
                     << QwLog::endl;
-	    //  Subsystems don't match
-	  }
-	}
+            //  Subsystems don't match
+          }
+        }
       }
     } else {
       //  Array sizes don't match
@@ -148,24 +148,24 @@ QwSubsystemArrayParity& QwSubsystemArrayParity::operator+= (const QwSubsystemArr
  */
 QwSubsystemArrayParity& QwSubsystemArrayParity::operator-= (const QwSubsystemArrayParity &value)
 {
-  if (!value.empty()){
+  if( !value.empty() ) {
     fCodaEventNumber = (fCodaEventNumber == 0) ? value.fCodaEventNumber :
-        std::min(fCodaEventNumber, value.fCodaEventNumber);
-    if (this->size() == value.size()){
-      this->fErrorFlag|=value.fErrorFlag;
-      for(size_t i=0;i<value.size();i++){
-	if (value.at(i)==NULL || this->at(i)==NULL){
-	  //  Either the value or the destination subsystem
-	  //  are null
-	} else {
-	  VQwSubsystemParity *ptr1 =
-	    dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
-	  if (typeid(*ptr1)==typeid(*(value.at(i).get()))){
-	    *(ptr1) -= value.at(i).get();
-	  } else {
-	    //  Subsystems don't match
-	  }
-	}
+                       std::min(fCodaEventNumber, value.fCodaEventNumber);
+    if( this->size() == value.size() ) {
+      this->fErrorFlag |= value.fErrorFlag;
+      for( size_t i = 0; i < value.size(); i++ ) {
+        if( !value.at(i) || !this->at(i) ) {
+          //  Either the value or the destination subsystem
+          //  are null
+        } else {
+          auto* ptr1 = dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
+          auto* ptr2 = value.at(i).get();
+          if( typeid(*ptr1) == typeid(*ptr2) ) {
+            *(ptr1) -= value.at(i).get();
+          } else {
+            //  Subsystems don't match
+          }
+        }
       }
     } else {
       //  Array sizes don't match
@@ -261,29 +261,30 @@ void QwSubsystemArrayParity::CalculateRunningAverage()
 
 void QwSubsystemArrayParity::AccumulateRunningSum(const QwSubsystemArrayParity& value, Int_t count, Int_t ErrorMask)
 {
-  if (!value.empty()) {
-    if (this->size() == value.size()) {
-      if (value.GetEventcutErrorFlag()==0){//do running sum only if error flag is zero. This way will prevent any Beam Trip(in ev mode 3) related events going into the running sum.
+  if( !value.empty() ) {
+    if( this->size() == value.size() ) {
+      if( value.GetEventcutErrorFlag() ==
+          0 ) {//do running sum only if error flag is zero. This way will prevent any Beam Trip(in ev mode 3) related events going into the running sum.
         fCodaEventNumber = (fCodaEventNumber == 0) ? value.fCodaEventNumber :
-            std::min(fCodaEventNumber, value.fCodaEventNumber);
-        for (size_t i = 0; i < value.size(); i++) {
-	  if (value.at(i)==NULL || this->at(i)==NULL) {
-	    //  Either the value or the destination subsystem
-	    //  are null
-	  } else {
-	    VQwSubsystemParity *ptr1 =
-	      dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
-	    if (typeid(*ptr1) == typeid(*(value.at(i).get()))) {
-	      ptr1->AccumulateRunningSum(value.at(i).get(), count, ErrorMask);
-	    } else {
-	      QwError << "QwSubsystemArrayParity::AccumulateRunningSum here where types don't match" << QwLog::endl;
-	      QwError << " typeid(ptr1)=" << typeid(ptr1).name()
-		      << " but typeid(value.at(i)))=" << typeid(value.at(i)).name()
-		      << QwLog::endl;
-	      //  Subsystems don't match
-	    }
-	  }
-	}
+                           std::min(fCodaEventNumber, value.fCodaEventNumber);
+        for( size_t i = 0; i < value.size(); i++ ) {
+          if( !value.at(i) || !this->at(i) ) {
+            //  Either the value or the destination subsystem
+            //  are null
+          } else {
+            auto* ptr1 = dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
+            auto* ptr2 = value.at(i).get();
+            if( typeid(*ptr1) == typeid(*ptr2) ) {
+              ptr1->AccumulateRunningSum(ptr2, count, ErrorMask);
+            } else {
+              QwError << "QwSubsystemArrayParity::AccumulateRunningSum here where types don't match" << QwLog::endl;
+              QwError << " typeid(ptr1)=" << typeid(*ptr1).name()
+                      << " but typeid(value.at(i)))=" << typeid(*ptr2).name()
+                      << QwLog::endl;
+              //  Subsystems don't match
+            }
+          }
+        }
       }
 
     } else {
@@ -297,28 +298,28 @@ void QwSubsystemArrayParity::AccumulateRunningSum(const QwSubsystemArrayParity& 
 
 void QwSubsystemArrayParity::AccumulateAllRunningSum(const QwSubsystemArrayParity& value, Int_t count, Int_t ErrorMask)
 {
-  if (!value.empty()) {
-    if (this->size() == value.size()) {
+  if( !value.empty() ) {
+    if( this->size() == value.size() ) {
       //if (value.GetEventcutErrorFlag()==0){//do running sum only if error flag is zero. This way will prevent any Beam Trip(in ev mode 3) related events going into the running sum.
-	for (size_t i = 0; i < value.size(); i++) {
-	  if (value.at(i)==NULL || this->at(i)==NULL) {
-	    //  Either the value or the destination subsystem
-	    //  are null
-	  } else {
-	    VQwSubsystemParity *ptr1 =
-	      dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
-	    if (typeid(*ptr1) == typeid(*(value.at(i).get()))) {
-	      ptr1->AccumulateRunningSum(value.at(i).get(), count, ErrorMask);
-	    } else {
-	      QwError << "QwSubsystemArrayParity::AccumulateRunningSum here where types don't match" << QwLog::endl;
-	      QwError << " typeid(ptr1)=" << typeid(ptr1).name()
-		      << " but typeid(value.at(i)))=" << typeid(value.at(i)).name()
-		      << QwLog::endl;
-	      //  Subsystems don't match
-	    }
-	  }
-	}
-	//}//else if ((value.fErrorFlag& 512)==512){
+      for( size_t i = 0; i < value.size(); i++ ) {
+        if( !value.at(i) || !this->at(i) ) {
+          //  Either the value or the destination subsystem
+          //  are null
+        } else {
+          auto *ptr1 = dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
+          auto *ptr2 = value.at(i).get();
+          if( typeid(*ptr1) == typeid(*ptr2) ) {
+            ptr1->AccumulateRunningSum(ptr2, count, ErrorMask);
+          } else {
+            QwError << "QwSubsystemArrayParity::AccumulateRunningSum here where types don't match" << QwLog::endl;
+            QwError << " typeid(ptr1)=" << typeid(*ptr1).name()
+                    << " but typeid(value.at(i)))=" << typeid(*ptr2).name()
+                    << QwLog::endl;
+            //  Subsystems don't match
+          }
+        }
+      }
+      //}//else if ((value.fErrorFlag& 512)==512){
       //QwMessage << " AccumulateRunningSum "<<(value.fErrorFlag & 0x2FF)<<" - "<<value.GetCodaEventNumber()<< QwLog::endl;
       //}
     } else {
@@ -335,30 +336,30 @@ void QwSubsystemArrayParity::DeaccumulateRunningSum(const QwSubsystemArrayParity
 {
   //Bool_t berror=kTRUE;//only needed for deaccumulation (stability check purposes)
   //if (value.fErrorFlag>0){//check the error is global
-  //berror=((value.fErrorFlag & 0x2FF) == 0); //The operation value.fErrorFlag & 0x2FF clear everything else but the HW errors + event cut errors + blinder error    
+  //berror=((value.fErrorFlag & 0x2FF) == 0); //The operation value.fErrorFlag & 0x2FF clear everything else but the HW errors + event cut errors + blinder error
   //}
-  if (!value.empty()) {
-    if (this->size() == value.size()) {
-      //if (value.GetEventcutErrorFlag()==0){//do derunningsum only if error flag is zero. 
-	for (size_t i = 0; i < value.size(); i++) {
-	  if (value.at(i)==NULL || this->at(i)==NULL) {
-	    //  Either the value or the destination subsystem
-	    //  are null
-	  } else {
-	    VQwSubsystemParity *ptr1 =
-	      dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
-	    if (typeid(*ptr1) == typeid(*(value.at(i).get()))) {
-	      ptr1->DeaccumulateRunningSum(value.at(i).get(), ErrorMask);
-	    } else {
-	      QwError << "QwSubsystemArrayParity::AccumulateRunningSum here where types don't match" << QwLog::endl;
-	      QwError << " typeid(ptr1)=" << typeid(ptr1).name()
-		      << " but typeid(value.at(i)))=" << typeid(value.at(i)).name()
-		      << QwLog::endl;
-	      //  Subsystems don't match
-	    }
-	  }
-	}
-	//}//else if ((value.fErrorFlag & 268435968)==268435968){
+  if( !value.empty() ) {
+    if( this->size() == value.size() ) {
+      //if (value.GetEventcutErrorFlag()==0){//do derunningsum only if error flag is zero.
+      for( size_t i = 0; i < value.size(); i++ ) {
+        if( !value.at(i) || !this->at(i) ) {
+          //  Either the value or the destination subsystem
+          //  are null
+        } else {
+          auto* ptr1 = dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
+          auto* ptr2 = value.at(i).get();
+          if( typeid(*ptr1) == typeid(*ptr2) ) {
+            ptr1->DeaccumulateRunningSum(ptr2, ErrorMask);
+          } else {
+            QwError << "QwSubsystemArrayParity::AccumulateRunningSum here where types don't match" << QwLog::endl;
+            QwError << " typeid(ptr1)=" << typeid(*ptr1).name()
+                    << " but typeid(value.at(i)))=" << typeid(*ptr2).name()
+                    << QwLog::endl;
+            //  Subsystems don't match
+          }
+        }
+      }
+      //}//else if ((value.fErrorFlag & 268435968)==268435968){
       //QwMessage << " DeaccumulateRunningSum "<<(value.fErrorFlag & 0x2FF)<<" - "<<value.GetCodaEventNumber()<< QwLog::endl;
       //}
     } else {
@@ -423,26 +424,25 @@ void QwSubsystemArrayParity::Ratio(
 {
   Bool_t localdebug=kFALSE;
 
-  if(localdebug) std::cout<<"QwSubsystemArrayParity::Ratio \n";
-  *this=numer;
-  if ( !denom.empty()){
-    this->fErrorFlag=(numer.fErrorFlag|denom.fErrorFlag);
-    if (this->size() == denom.size() ){
-      for(size_t i=0;i<denom.size();i++){
-        if (denom.at(i)==NULL || this->at(i)==NULL){
+  if( localdebug ) std::cout << "QwSubsystemArrayParity::Ratio \n";
+  *this = numer;
+  if( !denom.empty() ) {
+    this->fErrorFlag = (numer.fErrorFlag | denom.fErrorFlag);
+    if( this->size() == denom.size() ) {
+      for( size_t i = 0; i < denom.size(); i++ ) {
+        if( !denom.at(i) || !this->at(i) ) {
           //  Either the value or the destination subsystem  are null
-	  if(localdebug) std::cout<<"Either the value or the destination subsystem  are null\n";
+          if( localdebug ) std::cout << "Either the value or the destination subsystem  are null\n";
         } else {
-	  VQwSubsystemParity *ptr1 =
-	    dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
-	  if (typeid(*ptr1)==typeid(*(denom.at(i).get())))
-            {
-              ptr1->Ratio(numer.at(i).get(),denom.at(i).get());
-            } else {
-              //  Subsystems don't match
-              QwError << "subsystem #" << i
-                      << " type do not match : ratio computation aborted" << QwLog::endl;
-            }
+          auto* ptr1 = dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
+          auto* ptr2 = denom.at(i).get();
+          if( typeid(*ptr1) == typeid(*ptr2) ) {
+            ptr1->Ratio(numer.at(i).get(), ptr2);
+          } else {
+            //  Subsystems don't match
+            QwError << "subsystem #" << i
+                    << " type do not match : ratio computation aborted" << QwLog::endl;
+          }
         }
       }
     } else {
@@ -453,7 +453,7 @@ void QwSubsystemArrayParity::Ratio(
     QwError << "source empty : ratio computation aborted" << QwLog::endl;
     //  The source is empty
   }
-  if(localdebug) std::cout<<"I am out of it \n";
+  if( localdebug ) std::cout << "I am out of it \n";
 
 }
 
@@ -464,7 +464,7 @@ Bool_t QwSubsystemArrayParity::ApplySingleEventCuts(){
   fErrorFlag=0;  // Testing if event number is within bad Event Range cut
   if( CheckBadEventRange() )
     fErrorFlag |=kBadEventRangeError;
-  
+
   VQwSubsystemParity *subsys_parity;
   CountFalse=0;
   if (!empty()){
@@ -473,7 +473,7 @@ Bool_t QwSubsystemArrayParity::ApplySingleEventCuts(){
       status=subsys_parity->ApplySingleEventCuts();
       ErrorFlag = subsys_parity->GetEventcutErrorFlag();
       if ((ErrorFlag & kEventCutMode3)==kEventCutMode3)//we only care about the event cut flag in event cut mode 3
-	fErrorFlag |= ErrorFlag; 
+	fErrorFlag |= ErrorFlag;
       if (!status)
       {
 	if ((ErrorFlag&kGlobalCut)==kGlobalCut){
@@ -481,7 +481,7 @@ Bool_t QwSubsystemArrayParity::ApplySingleEventCuts(){
 	  fErrorFlag |= ErrorFlag; //we need the error code for failed events in event mode 2 for beam trips and etc.
 	}
       }
-      
+
 
     }
   }
@@ -512,22 +512,23 @@ void QwSubsystemArrayParity::IncrementErrorCounters()
 Bool_t QwSubsystemArrayParity::CheckForBurpFail(QwSubsystemArrayParity &event)
 {
   Bool_t burpstatus = kFALSE;
-  if (!event.empty() && this->size() == event.size()){
-    for(size_t i=0;i<event.size();i++){
-      if (event.at(i)!=NULL && this->at(i)!=NULL){
-	      VQwSubsystemParity *ptr1 = dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
-	      if (typeid(*ptr1)==typeid(*(event.at(i).get()))){
-	        //*(ptr1) = event.at(i).get();//when =operator is used
-	        //pass the correct subsystem to update the errorflags at subsystem to devices to channel levels
+  if( !event.empty() && this->size() == event.size() ) {
+    for( size_t i = 0; i < event.size(); i++ ) {
+      if( event.at(i) && this->at(i) ) {
+        auto* ptr1 = dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
+        auto* ptr2 = event.at(i).get();
+        if( typeid(*ptr1) == typeid(*ptr2) ) {
+          //*(ptr1) = event.at(i).get();//when =operator is used
+          //pass the correct subsystem to update the errorflags at subsystem to devices to channel levels
           //wError << "************* test " << typeid(*ptr1).name() << "*****************" << QwLog::endl;
-	        burpstatus |= ptr1->CheckForBurpFail(event.at(i).get());
-	      } else {
-	        //  Subsystems don't match
-	        QwError << " QwSubsystemArrayParity::CheckForBurpFail types do not mach" << QwLog::endl;
-	        QwError << " typeid(ptr1)=" << typeid(*ptr1).name()
-		      << " but typeid(*(event.at(i).get()))=" << typeid(*(event.at(i).get())).name()
-		      << QwLog::endl;
-	      }
+          burpstatus |= ptr1->CheckForBurpFail(ptr2);
+        } else {
+          //  Subsystems don't match
+          QwError << " QwSubsystemArrayParity::CheckForBurpFail types do not mach" << QwLog::endl;
+          QwError << " typeid(ptr1)=" << typeid(*ptr1).name()
+                  << " but typeid(*(event.at(i).get()))=" << typeid(*ptr2).name()
+                  << QwLog::endl;
+        }
       }
     }
   } else {
@@ -547,45 +548,46 @@ void QwSubsystemArrayParity::PrintErrorCounters() const{// report number of even
   }
 }
 
-void QwSubsystemArrayParity::UpdateErrorFlag(const QwSubsystemArrayParity& ev_error){
-  Bool_t localdebug=kFALSE;//kTRUE;
-  if(localdebug)  std::cout<<"QwSubsystemArrayParity::UpdateErrorFlag \n";
-  if (!ev_error.empty()){
-    if (this->size() == ev_error.size()){
+void QwSubsystemArrayParity::UpdateErrorFlag(const QwSubsystemArrayParity& ev_error)
+{
+  Bool_t localdebug = kFALSE;//kTRUE;
+  if( localdebug ) std::cout << "QwSubsystemArrayParity::UpdateErrorFlag \n";
+  if( !ev_error.empty() ) {
+    if( this->size() == ev_error.size() ) {
       this->fErrorFlag |= ev_error.fErrorFlag;
-      for(size_t i=0;i<ev_error.size();i++){
-	if (ev_error.at(i)==NULL || this->at(i)==NULL){
-	  //  Either the source or the destination subsystem
-	  //  are null
-	} else {
-	  VQwSubsystemParity *ptr1 =
-	    dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
-	  if (typeid(*ptr1)==typeid(*(ev_error.at(i).get()))){
-	    if(localdebug) std::cout<<" here in QwSubsystemArrayParity::UpdateErrorFlag types mach \n";
-	    //*(ptr1) = ev_error.at(i).get();//when =operator is used
-	    //pass the correct subsystem to update the errorflags at subsystem to devices to channel levels
-	    ptr1->UpdateErrorFlag(ev_error.at(i).get());
-	  } else {
-	    //  Subsystems don't match
-	      QwError << " QwSubsystemArrayParity::UpdateErrorFlag types do not mach" << QwLog::endl;
-	      QwError << " typeid(ptr1)=" << typeid(*ptr1).name()
-                      << " but typeid(*(ev_error.at(i).get()))=" << typeid(*(ev_error.at(i).get())).name()
-                      << QwLog::endl;
-	  }
-	}
+      for( size_t i = 0; i < ev_error.size(); i++ ) {
+        if( !ev_error.at(i) || !this->at(i) ) {
+          //  Either the source or the destination subsystem
+          //  are null
+        } else {
+          auto* ptr1 = dynamic_cast<VQwSubsystemParity*>(this->at(i).get());
+          auto* ptr2 = ev_error.at(i).get();
+          if( typeid(*ptr1) == typeid(*ptr2) ) {
+            if( localdebug ) std::cout << " here in QwSubsystemArrayParity::UpdateErrorFlag types mach \n";
+            //*(ptr1) = ev_error.at(i).get();//when =operator is used
+            //pass the correct subsystem to update the errorflags at subsystem to devices to channel levels
+            ptr1->UpdateErrorFlag(ptr2);
+          } else {
+            //  Subsystems don't match
+            QwError << " QwSubsystemArrayParity::UpdateErrorFlag types do not mach" << QwLog::endl;
+            QwError << " typeid(*ptr1)=" << typeid(*ptr1).name()
+                    << " but typeid(*ptr2)=" << typeid(*ptr2).name()
+                    << QwLog::endl;
+          }
+        }
       }
     } else {
       //  Array sizes don't match
     }
   } else {
     //  The source is empty
-  }  
+  }
 };
 
 
-void QwSubsystemArrayParity::UpdateErrorFlag() { 
+void QwSubsystemArrayParity::UpdateErrorFlag() {
   //this routine will refresh the global error flag after stability cut check
-  //by default at the ApplySingleEventCuts routine fErrorFlag is updated properly and a const GetEventcutErrorFlag() routine 
+  //by default at the ApplySingleEventCuts routine fErrorFlag is updated properly and a const GetEventcutErrorFlag() routine
   //returns the fErrorFlag value
   fErrorFlag=0;
   if( CheckBadEventRange() )
@@ -604,7 +606,7 @@ void QwSubsystemArrayParity::UpdateErrorFlag() {
 Bool_t QwSubsystemArrayParity::CheckBadEventRange(){
   std::vector< std::pair<UInt_t, UInt_t> >::iterator itber = fBadEventRange.begin(); // ber = bad event range
   while(itber!=fBadEventRange.end()){
-    if( fCodaEventNumber >= (*itber).first 
+    if( fCodaEventNumber >= (*itber).first
         && fCodaEventNumber <= (*itber).second){
       return kTRUE;
     }

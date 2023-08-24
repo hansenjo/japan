@@ -74,7 +74,7 @@ void QwEPICSEvent::DefineOptions(QwOptions &options)
 #ifdef __USE_DATABASE__
   // Option to disable EPICS database accesses
   options.AddOptions("Default options")
-    ("disable-db-epics", 
+    ("disable-db-epics",
      po::value<bool>()->default_bool_value(false),
      "disable EPICS database access");
 #endif
@@ -722,7 +722,7 @@ void QwEPICSEvent::FillDB(QwParityDB *db)
     db->Connect();
     mysqlpp::Query query= db->Query();
     query << "SELECT slow_controls_settings_id FROM slow_controls_settings WHERE";
-    query << " runlet_id = " << mysqlpp::quote << db->GetRunletID(); 
+    query << " runlet_id = " << mysqlpp::quote << db->GetRunletID();
 
     mysqlpp::StoreQueryResult res = query.store();
 
@@ -746,7 +746,7 @@ void QwEPICSEvent::FillDB(QwParityDB *db)
     db->Disconnect();
   }
 
- 
+
   if (! fDisableDatabase) {
     FillSlowControlsData(db);
     FillSlowControlsStrigs(db);
@@ -822,7 +822,7 @@ void QwEPICSEvent::FillSlowControlsData(QwParityDB *db)
 	  tmp_row.error         = sigma;
 	  tmp_row.min_value     = fEPICSCumulativeData[tagindex].Minimum;
 	  tmp_row.max_value     = fEPICSCumulativeData[tagindex].Maximum;
-	  
+
 	  entrylist.push_back(tmp_row);
 	}
       }
@@ -1066,7 +1066,7 @@ void QwEPICSEvent::FillSlowControlsSettings(QwParityDB *db)
   tagindex = FindIndex("IGL1I00DIOFLRD");
   if (tagindex != kEPICS_Error) {
     QwDebug << "tagindex for IGL1I00DIOFLRD = " << tagindex << QwLog::endl;
-    
+
     if (! fEPICSCumulativeData[tagindex].Filled) {
       //  No data for this run.
       tmp_row.passive_helicity_plate = mysqlpp::null;
@@ -1151,9 +1151,9 @@ void QwEPICSEvent::FillSlowControlsSettings(QwParityDB *db)
       tmp_row.wien_reversal = wien_enum[WienModeIndex(fEPICSDataEvent[tagindex].StringValue)].Data();
     }
   }
-  
+
   // For the precession reversal
-  //   This just uses the flag from the channel map to determine if the precession 
+  //   This just uses the flag from the channel map to determine if the precession
   //   is normal or reversed.
   if (fPrecessionReversal){
     tmp_row.precession_reversal = "reverse";
@@ -1249,8 +1249,8 @@ TList *QwEPICSEvent::GetEPICSStringValues()
   string_list->SetOwner(true);
 
   std::size_t tagindex = 0;
-  
-  for (tagindex=0; tagindex<fEPICSVariableList.size(); tagindex++) 
+
+  for (tagindex=0; tagindex<fEPICSVariableList.size(); tagindex++)
     {
       if (fEPICSVariableType[tagindex] == kEPICSString) {
 
@@ -1259,7 +1259,7 @@ TList *QwEPICSEvent::GetEPICSStringValues()
 
 	if (fEPICSDataEvent[tagindex].Filled) {
 	  epics_string += fEPICSDataEvent[tagindex].StringValue;
-	} 
+	}
 	else {
 	  epics_string += "empty";
 	}
@@ -1271,7 +1271,7 @@ TList *QwEPICSEvent::GetEPICSStringValues()
 	string_list -> Add(new TObjString(epics_string));
       }
     }
-    
+
   return string_list;
 }
 
@@ -1284,9 +1284,9 @@ void QwEPICSEvent::WriteEPICSStringValues()
   TSeqCollection *file_list = gROOT->GetListOfFiles();
 
   if (file_list) {
-    
+
     Int_t size = file_list->GetSize();
-    for (Int_t i=0; i<size; i++) 
+    for (Int_t i=0; i<size; i++)
       {
 	TFile *file = (TFile*) file_list->At(i);
 
@@ -1295,14 +1295,14 @@ void QwEPICSEvent::WriteEPICSStringValues()
 		    << file->GetName()
 		    << std::endl;
 	}
-	
+
 	TTree *slow_tree = (TTree*) file->Get("slow");
-	
-	for (std::size_t tagindex=0; tagindex<fEPICSVariableList.size(); tagindex++) 
+
+	for (std::size_t tagindex=0; tagindex<fEPICSVariableList.size(); tagindex++)
 	  {
-	    // only String 
+	    // only String
 	    if (fEPICSVariableType[tagindex] == kEPICSString) {
-	      
+
 	      TString name = fEPICSVariableList[tagindex];
 	      name.ReplaceAll(':','_'); // remove colons before creating branch
 	      TString name_type = name + "/C";\
@@ -1311,10 +1311,10 @@ void QwEPICSEvent::WriteEPICSStringValues()
 	      TString epics_string;
 
 	      TBranch *new_branch = slow_tree->Branch(name, epics_char, name_type);
-	      
+
 	      if (fEPICSDataEvent[tagindex].Filled) {
 		epics_string = fEPICSDataEvent[tagindex].StringValue;
-	      } 
+	      }
 	      else {
 		epics_string = "empty";
 	      }
@@ -1325,10 +1325,10 @@ void QwEPICSEvent::WriteEPICSStringValues()
 		std::cout <<"\n";
 	      }
 
-	      sprintf(epics_char, "%s", epics_string.Data());
+	      snprintf(epics_char, epics_string.Length(), "%s", epics_string.Data());
 	      new_branch->Fill();
 	    }
-	    
+
 	  }
 
 	file -> Write("", TObject::kOverwrite);
@@ -1338,7 +1338,7 @@ void QwEPICSEvent::WriteEPICSStringValues()
   QwDebug << "Leaving QwEPICSEvent::WriteEPICSStringValues() normally"  << QwLog::endl;
 
   return;
-  
+
 }
 
 
@@ -1378,12 +1378,12 @@ Int_t QwEPICSEvent::DetermineIHWPPolarity() const{
 
 EQwWienMode QwEPICSEvent::DetermineWienMode() const{
   EQwWienMode wienmode = kWienIndeterminate;
-  
+
   Double_t launchangle = 0.0;
 
   Double_t vwienangle = GetDataValue("VWienAngle");
   Double_t phiangle   = GetDataValue("Phi_FG");
-  Double_t hwienangle = GetDataValue("HWienAngle"); 
+  Double_t hwienangle = GetDataValue("HWienAngle");
   Double_t hoffset = 0.0;
   if (fabs(vwienangle)<10.0 && fabs(phiangle)<10.0){
     hoffset = 0.0;
@@ -1395,10 +1395,10 @@ EQwWienMode QwEPICSEvent::DetermineWienMode() const{
     hoffset = +90.0;
   } else if (fabs(vwienangle)>80.0 && fabs(phiangle)<10.0) {
     wienmode = kWienVertTrans;
-  } 
+  }
   if (wienmode == kWienIndeterminate){
     launchangle = hoffset+hwienangle;
-    Double_t long_proj = 
+    Double_t long_proj =
       cos((launchangle-fNominalWienAngle)*TMath::DegToRad());
     if (long_proj > 0.5){
       wienmode = kWienForward;

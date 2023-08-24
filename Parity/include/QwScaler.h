@@ -1,6 +1,6 @@
 
-#ifndef __QWSCALER__
-#define __QWSCALER__
+#ifndef QWSCALER_H
+#define QWSCALER_H
 
 // System headers
 #include <vector>
@@ -15,44 +15,46 @@
 
 class QwScaler: public VQwSubsystemParity, public MQwSubsystemCloneable<QwScaler>
 {
-  private:
-    /// Private default constructor (not implemented, will throw linker error on use)
-    QwScaler();
-
   public:
+    /// No default constructor
+    QwScaler() = delete;
 
     /// Constructor with name
-    QwScaler(const TString& name);
+    explicit QwScaler(const TString& name);
     /// Copy constructor
     QwScaler(const QwScaler& source)
-    : VQwSubsystem(source),VQwSubsystemParity(source)
+      : VQwSubsystem(source)
+      , VQwSubsystemParity(source)
+      , fGoodEventCount{0}
     {
       fScaler.resize(source.fScaler.size());
-      for (size_t i = 0; i < fScaler.size(); i++) {
-        VQwScaler_Channel* scaler_tmp = 0;
-        if ((scaler_tmp = dynamic_cast<QwSIS3801D24_Channel*>(source.fScaler.at(i)))) {
-          QwSIS3801D24_Channel* scaler = dynamic_cast<QwSIS3801D24_Channel*>(source.fScaler.at(i));
-          fScaler.at(i) = new QwSIS3801D24_Channel(*scaler);
-        } else if ((scaler_tmp = dynamic_cast<QwSIS3801D32_Channel*>(source.fScaler.at(i)))) {
-          QwSIS3801D32_Channel* scaler = dynamic_cast<QwSIS3801D32_Channel*>(source.fScaler.at(i));
-          fScaler.at(i) = new QwSIS3801D32_Channel(*scaler);
+      for( size_t i = 0; i < fScaler.size(); i++ ) {
+        auto* scaler24 = dynamic_cast<QwSIS3801D24_Channel*>(source.fScaler.at(i));
+        if( scaler24 ) {
+          fScaler.at(i) = new QwSIS3801D24_Channel(*scaler24);
+        } else {
+          auto* scaler32 = dynamic_cast<QwSIS3801D32_Channel*>(source.fScaler.at(i));
+          if( scaler32 ) {
+            fScaler.at(i) = new QwSIS3801D32_Channel(*scaler32);
+          }
         }
       }
     }
-    /// Destructor
+
+  /// Destructor
     virtual ~QwScaler();
 
     // Handle command line options
     static void DefineOptions(QwOptions &options);
     void ProcessOptions(QwOptions &options);
 
-    Int_t LoadChannelMap(TString mapfile);
-    Int_t LoadInputParameters(TString pedestalfile);
+    Int_t LoadChannelMap( const TString& mapfile);
+    Int_t LoadInputParameters( const TString& pedestalfile);
 
     void  ClearEventData();
 
-    Int_t ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
-    Int_t ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t *buffer, UInt_t num_words);
+    Int_t ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+    Int_t ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t *buffer, UInt_t num_words);
     void  ProcessEvent();
 
     using VQwSubsystem::ConstructHistograms;
@@ -80,7 +82,7 @@ class QwScaler: public VQwSubsystemParity, public MQwSubsystemCloneable<QwScaler
     void DeaccumulateRunningSum(VQwSubsystem* value, Int_t ErrorMask=0xFFFFFFF);
     void CalculateRunningAverage();
 
-    Int_t LoadEventCuts(TString filename);
+    Int_t LoadEventCuts( const TString& filename);
     Bool_t SingleEventCuts();
     Bool_t ApplySingleEventCuts();
 
@@ -96,7 +98,7 @@ class QwScaler: public VQwSubsystemParity, public MQwSubsystemCloneable<QwScaler
     //update the error flag in the subsystem level from the top level routines related to stability checks. This will uniquely update the errorflag at each channel based on the error flag in the corresponding channel in the ev_error subsystem
     void UpdateErrorFlag(const VQwSubsystem *ev_error){
     };
-    
+
     void PrintValue() const;
     void PrintInfo() const;
 

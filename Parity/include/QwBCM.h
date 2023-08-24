@@ -5,8 +5,8 @@
 * Time-stamp:                                              *
 \**********************************************************/
 
-#ifndef __QWBCM__
-#define __QWBCM__
+#ifndef QWBCM_H
+#define QWBCM_H
 
 // System headers
 #include <vector>
@@ -54,7 +54,7 @@ class QwBCM : public VQwBCM {
   : VQwBCM(source),
     fBeamCurrent(source.fBeamCurrent)
   { }
-  virtual ~QwBCM() { };
+  virtual ~QwBCM() = default;
 
   Int_t ProcessEvBuffer(UInt_t* buffer, UInt_t word_position_in_buffer, UInt_t subelement=0);
 
@@ -103,7 +103,7 @@ class QwBCM : public VQwBCM {
 
   void UpdateErrorFlag(const VQwBCM *ev_error);
 
-  UInt_t GetErrorCode() const {return (fBeamCurrent.GetErrorCode());}; 
+  UInt_t GetErrorCode() const {return (fBeamCurrent.GetErrorCode());};
 
 
   Int_t SetSingleEventCuts(Double_t mean = 0, Double_t sigma = 0);//two limts and sample size
@@ -128,7 +128,7 @@ public:
   std::string GetExternalClockName() { return fBeamCurrent.GetExternalClockName(); };
   Bool_t NeedsExternalClock() { return fBeamCurrent.NeedsExternalClock(); };
   void SetExternalClockPtr( const VQwHardwareChannel* clock) {fBeamCurrent.SetExternalClockPtr(clock);};
-  void SetExternalClockName( const std::string name) { fBeamCurrent.SetExternalClockName(name);};
+  void SetExternalClockName( const std::string& name) { fBeamCurrent.SetExternalClockName(name);};
   Double_t GetNormClockValue() { return fBeamCurrent.GetNormClockValue();}
 
   // Implementation of Parent class's virtual operators
@@ -189,4 +189,4 @@ public:
 };
 
 
-#endif // __QWBCM__
+#endif // QWBCM_H

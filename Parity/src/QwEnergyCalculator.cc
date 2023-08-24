@@ -47,7 +47,7 @@ void QwEnergyCalculator::Set(const VQwBPM* device, TString type, TString propert
 
   if(ldebug)
     std::cout<<"QwEnergyCalculator:: Using "<<device->GetElementName()<<" with ratio "<< tmatrix_ratio <<" for "<<property<<std::endl;
- 
+
   return;
 }
 
@@ -55,7 +55,7 @@ void QwEnergyCalculator::SetRootSaveStatus(TString &prefix)
 {
   if(prefix.Contains("diff_")||prefix.Contains("yield_")|| prefix.Contains("asym_"))
     bFullSave=kFALSE;
-  
+
   return;
 }
 
@@ -139,7 +139,7 @@ void QwEnergyCalculator::GetProjectedPosition(VQwBPM *device)
   static QwVQWK_Channel tmp;
   tmp.InitializeChannel("tmp","derived");
   tmp.ClearEventData();
-  //  Set the device position value to be equal to the energy change 
+  //  Set the device position value to be equal to the energy change
   (device->GetPosition(VQwBPM::kXAxis))->AssignValueFrom(&fEnergyChange);
   /** qwk_1c12X changes only **/
 
@@ -199,8 +199,8 @@ void QwEnergyCalculator::LoadMockDataParameters(QwParameterFile &paramfile){
 /*  Bool_t   ldebug=kFALSE;
   Double_t mean=0.0, sigma=0.0;
 
-  mean  = paramfile.GetTypedNextToken<Double_t>(); 
-  sigma = paramfile.GetTypedNextToken<Double_t>();      
+  mean  = paramfile.GetTypedNextToken<Double_t>();
+  sigma = paramfile.GetTypedNextToken<Double_t>();
 
    if (ldebug==1) {
      std::cout << "#################### \n";
@@ -217,14 +217,15 @@ void QwEnergyCalculator::LoadMockDataParameters(QwParameterFile &paramfile){
 Bool_t QwEnergyCalculator::ApplySingleEventCuts(){
   Bool_t status=kTRUE;
 
-  UInt_t error_code = 0;
-  for(UInt_t i = 0; i<fProperty.size(); i++){
-    if(fProperty[i].Contains("targetbeamangle")){
-      error_code |= ((QwCombinedBPM<QwVQWK_Channel>*)fDevice[i])->fSlope[0].GetErrorCode();
-    } else {
-      error_code |= fDevice[i]->GetPosition(VQwBPM::kXAxis)->GetErrorCode();
-    }
-  }
+//FIXME: unused
+//  UInt_t error_code = 0;
+//  for(UInt_t i = 0; i<fProperty.size(); i++){
+//    if(fProperty[i].Contains("targetbeamangle")){
+//      error_code |= ((QwCombinedBPM<QwVQWK_Channel>*)fDevice[i])->fSlope[0].GetErrorCode();
+//    } else {
+//      error_code |= fDevice[i]->GetPosition(VQwBPM::kXAxis)->GetErrorCode();
+//    }
+//  }
   //fEnergyChange.UpdateErrorFlag(error_code);//No need to do this. error codes are ORed when energy is calculated
 
   if (fEnergyChange.ApplySingleEventCuts()){
@@ -248,7 +249,7 @@ void QwEnergyCalculator::PrintErrorCounters() const{
 }
 /*
 void QwEnergyCalculator::PrintRandomEventParameters(){
-  
+
 }
 */
 UInt_t QwEnergyCalculator::UpdateErrorFlag()
@@ -364,14 +365,14 @@ void QwEnergyCalculator::SetSingleEventCuts(UInt_t errorflag, Double_t LL=0, Dou
 }
 
 Bool_t QwEnergyCalculator::CheckForBurpFail(const VQwDataElement *ev_error){
-  Short_t i=0;
+//  Short_t i=0;
   Bool_t burpstatus = kFALSE;
   try {
     if(typeid(*ev_error)==typeid(*this)) {
       //std::cout<<" Here in QwEnergyCalculator::CheckForBurpFail \n";
       if (this->GetElementName()!="") {
         const QwEnergyCalculator* value_halo = dynamic_cast<const QwEnergyCalculator* >(ev_error);
-        burpstatus |= fEnergyChange.CheckForBurpFail(&(value_halo->fEnergyChange)); 
+        burpstatus |= fEnergyChange.CheckForBurpFail(&(value_halo->fEnergyChange));
       }
     } else {
       TString loc="Standard exception from QwEnergyCalculator::CheckForBurpFail :"+
@@ -405,7 +406,7 @@ void  QwEnergyCalculator::FillHistograms(){
   }
   else
     fEnergyChange.FillHistograms();
-  
+
   return;
 }
 
@@ -418,9 +419,9 @@ void  QwEnergyCalculator::ConstructBranchAndVector(TTree *tree, TString &prefix,
     TString thisprefix=prefix;
     if(prefix.Contains("asym_"))
       thisprefix.ReplaceAll("asym_","diff_");
-    
+
     SetRootSaveStatus(thisprefix);
-    
+
     fEnergyChange.ConstructBranchAndVector(tree,thisprefix,values);
   }
     return;
@@ -456,7 +457,7 @@ void  QwEnergyCalculator::ConstructBranch(TTree *tree, TString &prefix, QwParame
       TString thisprefix=prefix;
       if(prefix.Contains("asym_"))
 	thisprefix.ReplaceAll("asym_","diff_");
-      SetRootSaveStatus(thisprefix);   
+      SetRootSaveStatus(thisprefix);
       fEnergyChange.ConstructBranch(tree,thisprefix);
       QwMessage <<" Tree leave added to "<<devicename<<QwLog::endl;
       }

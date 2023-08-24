@@ -5,8 +5,8 @@
 * Time-stamp:                                             *
 \**********************************************************/
 
-#ifndef __QwBEAMLINE__
-#define __QwBEAMLINE__
+#ifndef QwBEAMLINE_H
+#define QwBEAMLINE_H
 
 // System headers
 #include <vector>
@@ -37,14 +37,13 @@
 ******************************************************************/
 class QwBeamLine : public VQwSubsystemParity, public MQwSubsystemCloneable<QwBeamLine> {
 
- private:
-  /// Private default constructor (not implemented, will throw linker error on use)
-  QwBeamLine();
-
  public:
+  /// No default constructor
+  QwBeamLine() = delete;
+
   /// Constructor with name
-  QwBeamLine(const TString& name)
-  : VQwSubsystem(name),VQwSubsystemParity(name)
+  explicit QwBeamLine(const TString& name)
+  : VQwSubsystem(name),VQwSubsystemParity(name),fQwBeamLineErrorCount{0}
   { };
   /// Copy constructor
   QwBeamLine(const QwBeamLine& source)
@@ -54,22 +53,23 @@ class QwBeamLine : public VQwSubsystemParity, public MQwSubsystemCloneable<QwBea
     fCavity(source.fCavity),
     fHaloMonitor(source.fHaloMonitor),
     fECalculator(source.fECalculator),
-    fBeamDetectorID(source.fBeamDetectorID)
-  { this->CopyTemplatedDataElements(&source); }
+    fBeamDetectorID(source.fBeamDetectorID),
+    fQwBeamLineErrorCount{0}
+  { CopyTemplatedDataElements(&source); }
   /// Virtual destructor
-  virtual ~QwBeamLine() { };
+  virtual ~QwBeamLine() = default;
 
   void   CopyTemplatedDataElements(const VQwSubsystem *source);
 
   /* derived from VQwSubsystem */
-  
+
   void   ProcessOptions(QwOptions &options);//Handle command line options
-  Int_t  LoadChannelMap(TString mapfile);
-  Int_t  LoadInputParameters(TString pedestalfile);
-  Int_t  LoadEventCuts(TString filename);//derived from VQwSubsystemParity
-  Int_t  LoadGeometryDefinition(TString mapfile);
-  Int_t  LoadMockDataParameters(TString mapfile);
-  void   AssignGeometry(QwParameterFile* mapstr, VQwBPM * bpm);
+  Int_t  LoadChannelMap( const TString& mapfile);
+  Int_t  LoadInputParameters( const TString& pedestalfile);
+  Int_t  LoadEventCuts( const TString& filename);//derived from VQwSubsystemParity
+  Int_t  LoadGeometryDefinition( const TString& mapfile);
+  Int_t  LoadMockDataParameters( const TString& mapfile);
+  static void AssignGeometry(QwParameterFile* mapstr, VQwBPM * bpm);
 
   Bool_t ApplySingleEventCuts();//derived from VQwSubsystemParity
   void   IncrementErrorCounters();
@@ -84,8 +84,8 @@ class QwBeamLine : public VQwSubsystemParity, public MQwSubsystemCloneable<QwBea
   //update the error flag in the subsystem level from the top level routines related to stability checks. This will uniquely update the errorflag at each channel based on the error flag in the corresponding channel in the ev_error subsystem
   void UpdateErrorFlag(const VQwSubsystem *ev_error);
 
-  Int_t  ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
-  Int_t  ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t  ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t  ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
   void   PrintDetectorID() const;
 
   void   ClearEventData();
@@ -136,31 +136,31 @@ class QwBeamLine : public VQwSubsystemParity, public MQwSubsystemCloneable<QwBea
 
   void   PrintValue() const;
   void   PrintInfo() const;
-  void   WritePromptSummary(QwPromptSummary *ps, TString type);
+  void   WritePromptSummary( QwPromptSummary *ps, const TString& type);
 
-  VQwDataElement* GetElement(QwBeamDetectorID det_id);
-  VQwDataElement* GetElement(EQwBeamInstrumentType TypeID, TString name);
+  VQwDataElement* GetElement(const QwBeamDetectorID& det_id);
+  VQwDataElement* GetElement(EQwBeamInstrumentType TypeID, const TString& name);
   VQwDataElement* GetElement(EQwBeamInstrumentType TypeID, Int_t index);
   const  VQwDataElement* GetElement(EQwBeamInstrumentType TypeID, Int_t index) const;
 
-  const  VQwHardwareChannel* GetChannel(EQwBeamInstrumentType TypeID, Int_t index, TString device_prop) const;
+  const  VQwHardwareChannel* GetChannel(EQwBeamInstrumentType TypeID, Int_t index, const TString& device_prop) const;
 
-  VQwBPM* GetBPMStripline(const TString name);
-  VQwBCM* GetBCM(const TString name);
-  VQwClock* GetClock(const TString name);
-  QwBPMCavity* GetBPMCavity(const TString name);
-  VQwBCM* GetCombinedBCM(const TString name);
-  VQwBPM* GetCombinedBPM(const TString name);
-  QwEnergyCalculator* GetEnergyCalculator(const TString name);
-  QwHaloMonitor* GetScalerChannel(const TString name);
-  const QwBPMCavity* GetBPMCavity(const TString name) const;
-  const VQwBPM* GetBPMStripline(const TString name) const;
-  const VQwBCM* GetBCM(const TString name) const;
-  const VQwClock* GetClock(const TString name) const;
-  const VQwBCM* GetCombinedBCM(const TString name) const;
-  const VQwBPM* GetCombinedBPM(const TString name) const;
-  const QwEnergyCalculator* GetEnergyCalculator(const TString name) const;
-  const QwHaloMonitor* GetScalerChannel(const TString name) const;
+  VQwBPM* GetBPMStripline( const TString& name);
+  VQwBCM* GetBCM( const TString& name);
+  VQwClock* GetClock( const TString& name);
+  QwBPMCavity* GetBPMCavity( const TString& name);
+  VQwBCM* GetCombinedBCM( const TString& name);
+  VQwBPM* GetCombinedBPM( const TString& name);
+  QwEnergyCalculator* GetEnergyCalculator( const TString& name);
+  QwHaloMonitor* GetScalerChannel( const TString& name);
+  const QwBPMCavity* GetBPMCavity( const TString& name) const;
+  const VQwBPM* GetBPMStripline( const TString& name) const;
+  const VQwBCM* GetBCM( const TString& name) const;
+  const VQwClock* GetClock( const TString& name) const;
+  const VQwBCM* GetCombinedBCM( const TString& name) const;
+  const VQwBPM* GetCombinedBPM( const TString& name) const;
+  const QwEnergyCalculator* GetEnergyCalculator( const TString& name) const;
+  const QwHaloMonitor* GetScalerChannel( const TString& name) const;
 
 
 /////
@@ -170,8 +170,8 @@ protected:
   ///  the index of that element within the array.
   template <typename TT>
   Int_t AddToElementList(std::vector<TT> &elementlist, QwBeamDetectorID &detector_id);
-  
-  Int_t GetDetectorIndex(EQwBeamInstrumentType TypeID, TString name) const;
+
+  Int_t GetDetectorIndex(EQwBeamInstrumentType TypeID, const TString& name) const;
   //when the type and the name is passed the detector index from appropriate vector will be returned
   //for example if TypeID is bcm  then the index of the detector from fBCM vector for given name will be returnd.
 
@@ -192,7 +192,7 @@ protected:
   std::vector <QwEnergyCalculator> fECalculator;
   std::vector <QwBeamDetectorID> fBeamDetectorID;
 
-  
+
 
 /////
 private:
@@ -202,8 +202,8 @@ private:
 
   static const Bool_t bDEBUG=kFALSE;
 
-  
-
 };
+
+DeclareSubsystemFactory(QwBeamLine);
 
 #endif

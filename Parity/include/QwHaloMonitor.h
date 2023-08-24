@@ -58,7 +58,7 @@ class  QwHaloMonitor : public VQwDataElement{
   std::string GetExternalClockName() { return fHalo_Counter.GetExternalClockName(); };
   Bool_t NeedsExternalClock() { return fHalo_Counter.NeedsExternalClock(); };
   void SetExternalClockPtr( const VQwHardwareChannel* clock) {fHalo_Counter.SetExternalClockPtr(clock);};
-  void SetExternalClockName( const std::string name) { fHalo_Counter.SetExternalClockName(name);};
+  void SetExternalClockName( const std::string& name) { fHalo_Counter.SetExternalClockName(name);};
   Double_t GetNormClockValue() { return fHalo_Counter.GetNormClockValue();}
 
 

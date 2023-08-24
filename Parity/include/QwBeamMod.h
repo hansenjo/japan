@@ -11,8 +11,8 @@
 *                                                         *
 \**********************************************************/
 
-#ifndef __QwBEAMMOD__
-#define __QwBEAMMOD__
+#ifndef QwBEAMMOD_H
+#define QwBEAMMOD_H
 
 // System headers
 #include <vector>
@@ -41,17 +41,16 @@ class QwModChannelID;
 ******************************************************************/
 class QwBeamMod: public VQwSubsystemParity, public MQwSubsystemCloneable<QwBeamMod> {
 
- private:
-  ///
-  QwBeamMod();
-
  public:
+  /// No default constructor
+  QwBeamMod() = delete;
+
   /// Constructor with name
-  QwBeamMod(const TString& name)
+  explicit QwBeamMod(const TString& name)
   : VQwSubsystem(name),VQwSubsystemParity(name)
     {
-      fFFB_holdoff_Counter=0;
-      fFFB_Flag=kTRUE;
+//      fFFB_holdoff_Counter=0;
+//      fFFB_Flag=kTRUE;
       fRampChannelIndex = -1;
       fPatternWordIndex = -1;
       fBmwObj_Index = -1;
@@ -64,17 +63,17 @@ class QwBeamMod: public VQwSubsystemParity, public MQwSubsystemCloneable<QwBeamM
   QwBeamMod(const QwBeamMod& source)
   : VQwSubsystem(source),VQwSubsystemParity(source),
     fWord(source.fWord)
-  { 
+  {
     // std::cout<< "Here in the copy constructor" << std::endl;
-    this->fModChannel.reserve(source.fModChannel.size());
+    fModChannel.reserve(source.fModChannel.size());
     for(size_t i=0;i< source.fModChannel.size();i++) {
-      this->fModChannel.push_back(source.fModChannel[i]->Clone());
-      *(this->fModChannel[i]) = *(source.fModChannel[i]);
+      fModChannel.push_back(source.fModChannel[i]->Clone());
+      *fModChannel[i] = *source.fModChannel[i];
       //source.fModChannel[i]->PrintValue();
     }
   }
   /// Virtual destructor
-  virtual ~QwBeamMod() {};
+  virtual ~QwBeamMod() = default;
 
   /* derived from VQwSubsystem */
 
@@ -85,10 +84,10 @@ class QwBeamMod: public VQwSubsystemParity, public MQwSubsystemCloneable<QwBeamM
   void DeaccumulateRunningSum(VQwSubsystem* value, Int_t ErrorMask=0xFFFFFFF){
   };
 
-  Int_t LoadChannelMap(TString mapfile);
-  Int_t LoadEventCuts(TString filename);//derived from VQwSubsystemParity
-  Int_t LoadGeometry(TString mapfile);
-  Int_t LoadInputParameters(TString pedestalfile);
+  Int_t LoadChannelMap( const TString& mapfile);
+  Int_t LoadEventCuts( const TString& filename);//derived from VQwSubsystemParity
+  //Int_t LoadGeometry(const TString& mapfile);
+  Int_t LoadInputParameters( const TString& pedestalfile);
 
 
   Bool_t ApplySingleEventCuts();//derived from VQwSubsystemParity
@@ -101,8 +100,8 @@ class QwBeamMod: public VQwSubsystemParity, public MQwSubsystemCloneable<QwBeamM
   //update the error flag in the subsystem level from the top level routines related to stability checks. This will uniquely update the errorflag at each channel based on the error flag in the corresponding channel in the ev_error subsystem
   void UpdateErrorFlag(const VQwSubsystem *ev_error);
 
-  Int_t ProcessConfigurationBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
-  Int_t ProcessEvBuffer(const ROCID_t roc_id, const BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t ProcessConfigurationBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
+  Int_t ProcessEvBuffer(ROCID_t roc_id, BankID_t bank_id, UInt_t* buffer, UInt_t num_words);
 //  void  PrintDetectorID();
 
   void  ClearEventData();
@@ -140,7 +139,7 @@ class QwBeamMod: public VQwSubsystemParity, public MQwSubsystemCloneable<QwBeamM
   void FillDB(QwParityDB *db, TString datatype);
   void FillErrDB(QwParityDB *db, TString datatype);
 #endif // __USE_DATABASE__
-  void WritePromptSummary(QwPromptSummary *ps, TString type);
+  void WritePromptSummary( QwPromptSummary *ps, const TString& type);
 
   Bool_t Compare(VQwSubsystem *source);
 
@@ -159,11 +158,12 @@ class QwBeamMod: public VQwSubsystemParity, public MQwSubsystemCloneable<QwBeamM
 
  private:
 
- UInt_t fFFB_Index;
- UInt_t fFFB_holdoff;
- UInt_t fFFB_holdoff_Counter;
+//FIXME: unused
+// UInt_t fFFB_Index;
+// UInt_t fFFB_holdoff;
+// UInt_t fFFB_holdoff_Counter;
  UInt_t fFFB_ErrorFlag;
- Bool_t fFFB_Flag;
+// Bool_t fFFB_Flag;
  static const Bool_t bDEBUG=kFALSE;
 
  Int_t fRampChannelIndex;
@@ -171,21 +171,21 @@ class QwBeamMod: public VQwSubsystemParity, public MQwSubsystemCloneable<QwBeamM
  UInt_t fBmwObj_Index;
  Int_t fBMWObj_LL;
  Int_t fBMWObj_UL;
- UInt_t fBmwObj_ErrorFlag;
+ //UInt_t fBmwObj_ErrorFlag;
 
 };
 
-
+DeclareSubsystemFactory(QwBeamMod);
 
 class QwModChannelID
 {
  public:
 
-  QwModChannelID(Int_t subbankid, Int_t wordssofar,TString name,
-		   TString modtype ,QwBeamMod * obj);
+//  QwModChannelID(Int_t subbankid, Int_t wordssofar,TString name,
+//		   TString modtype ,QwBeamMod * obj);
 
    QwModChannelID(Int_t subbankid, QwParameterFile &paramfile);
-  
+
 
 
 /*     QwModChannelID):fSubbankIndex(-1),fWordInSubbank(-1),fTypeID(-1),fIndex(-1), */
@@ -203,14 +203,14 @@ class QwModChannelID
   TString fmodulename;
   Int_t modnum;
   Int_t channum;
-  
+
   // TString fdetectortype;
 
   Int_t  kUnknownDeviceType;
   Int_t  fTypeID;           // type of detector eg: lumi or stripline, etc..
   Int_t  fIndex;            // index of this detector in the vector containing all the detector of same type
 
-  void Print();
+  void Print() const;
 
 };
 

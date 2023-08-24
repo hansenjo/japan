@@ -145,14 +145,14 @@ class QwColor
   private:
 
     Qw::EQwColor foreground; ///< Foreground color
-    Qw::EQwColor background; ///< Background color (not yet supported)
+    [[maybe_unused]] Qw::EQwColor background; ///< Background color (not yet supported)
 
 }; // class QwColor
 
 /// Output stream operator which uses the enum-to-escape-code mapping
 inline std::ostream& operator<<(std::ostream& out, const QwColor& color)
 {
-  return out << color.kColorMap[color.foreground];
+  return out << QwColor::kColorMap[color.foreground];
 }
 
 #endif // QWCOLOR_H

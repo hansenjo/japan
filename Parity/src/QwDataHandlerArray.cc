@@ -149,7 +149,7 @@ void QwDataHandlerArray::LoadDataHandlersFromParameterFile(
     QwMessage << "Creating handler of type " << handler_type << " "
               << "with name " << handler_name << "." << QwLog::endl;
     VQwDataHandler* handler = 0;
-    
+
     try {
       handler =
         VQwDataHandlerFactory::Create(handler_type, handler_name);
@@ -184,7 +184,7 @@ void QwDataHandlerArray::LoadDataHandlersFromParameterFile(
 
     // Add to array
     this->push_back(handler);
-    /*    
+    /*
     // Instruct the handler to publish variables
     if (handler->PublishInternalValues() == kFALSE) {
       QwError << "Not all variables for " << handler->GetName()
@@ -458,20 +458,20 @@ QwDataHandlerArray& QwDataHandlerArray::operator= (const QwDataHandlerArray &sou
   if (!source.empty()){
     if (this->size() == source.size()){
       for(size_t i=0;i<source.size();i++){
-	if (source.at(i)==NULL || this->at(i)==NULL){
+	if (!source.at(i) || !this->at(i)){
 	  //  Either the source or the destination handler
 	  //  are null
 	} else {
-	  VQwDataHandler *ptr1 =
-	    dynamic_cast<VQwDataHandler*>(this->at(i).get());
-	  if (typeid(*ptr1)==typeid(*(source.at(i).get()))){
+	  auto *ptr1 = dynamic_cast<VQwDataHandler*>(this->at(i).get());
+    auto *ptr2 = source.at(i).get();
+    if( typeid(*ptr1) == typeid(*ptr2) ) {
 	    if(localdebug) std::cout<<" here in QwDataHandlerArray::operator= types mach \n";
 	    *(ptr1) = *(source.at(i).get());
 	  } else {
 	    //  DataHandlers don't match
 	      QwError << " QwDataHandlerArray::operator= types do not mach" << QwLog::endl;
 	      QwError << " typeid(ptr1)=" << typeid(*ptr1).name()
-                      << " but typeid(*(source.at(i).get()))=" << typeid(*(source.at(i).get())).name()
+                      << " but typeid(*(source.at(i).get()))=" << typeid(*ptr2).name()
                       << QwLog::endl;
 	  }
 	}
@@ -529,13 +529,13 @@ void QwDataHandlerArray::AccumulateRunningSum(const QwDataHandlerArray& value, I
   if (!value.empty()) {
     if (this->size() == value.size()) {
 	for (size_t i = 0; i < value.size(); i++) {
-	  if (value.at(i)==NULL || this->at(i)==NULL) {
+	  if (!value.at(i) || !this->at(i)) {
 	    //  Either the value or the destination handler
 	    //  are null
 	  } else {
-	    VQwDataHandler *ptr1 =
-	      dynamic_cast<VQwDataHandler*>(this->at(i).get());
-	    if (typeid(*ptr1) == typeid(*(value.at(i).get()))) {
+	    auto *ptr1 = dynamic_cast<VQwDataHandler*>(this->at(i).get());
+      auto *ptr2 = value.at(i).get();
+      if( typeid(*ptr1) == typeid(*ptr2) ) {
 	      ptr1->AccumulateRunningSum(*(value.at(i).get()), count, ErrorMask);
 	    } else {
 	      QwError << "QwDataHandlerArray::AccumulateRunningSum here where types don't match" << QwLog::endl;
@@ -561,13 +561,13 @@ void QwDataHandlerArray::AccumulateAllRunningSum(const QwDataHandlerArray& value
   if (!value.empty()) {
     if (this->size() == value.size()) {
 	for (size_t i = 0; i < value.size(); i++) {
-	  if (value.at(i)==NULL || this->at(i)==NULL) {
+	  if (!value.at(i) || !this->at(i)) {
 	    //  Either the value or the destination handler
 	    //  are null
 	  } else {
-	    VQwDataHandler *ptr1 =
-	      dynamic_cast<VQwDataHandler*>(this->at(i).get());
-	    if (typeid(*ptr1) == typeid(*(value.at(i).get()))) {
+	    auto *ptr1 = dynamic_cast<VQwDataHandler*>(this->at(i).get());
+      auto *ptr2 = value.at(i).get();
+      if( typeid(*ptr1) == typeid(*ptr2) ) {
 	      ptr1->AccumulateRunningSum(*(value.at(i).get()), count, ErrorMask);
 	    } else {
 	      QwError << "QwDataHandlerArray::AccumulateRunningSum here where types don't match" << QwLog::endl;
@@ -608,7 +608,7 @@ void QwDataHandlerArray::PrintErrorCounters() const{// report number of events f
  */
 void QwDataHandlerArray::push_back(boost::shared_ptr<VQwDataHandler> handler)
 {
-  
+
  if (handler.get() == NULL) {
    QwError << "QwDataHandlerArray::push_back(): NULL handler"
            << QwLog::endl;
@@ -663,11 +663,11 @@ TList* QwDataHandlerArray::GetParamFileNameList(TString name) const
 
     std::map<TString, TString> mapfiles_handler;
 
-    for (const_iterator handler = begin(); handler != end(); ++handler) 
+    for (const_iterator handler = begin(); handler != end(); ++handler)
       {
 	mapfiles_handler = (*handler)->GetDetectorMaps();
 	for( std::map<TString, TString>::iterator ii= mapfiles_handler.begin(); ii!= mapfiles_handler.end(); ++ii)
-	  {	
+	  {
 	    TList *test = new TList;
 	    test->SetName((*ii).first);
 	    test->AddLast(new TObjString((*ii).second));
@@ -702,8 +702,3 @@ void QwDataHandlerArray::FinishDataHandler()
     }
   }
 }
-  
-  
-  
-  
-  

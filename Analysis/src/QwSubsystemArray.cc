@@ -74,19 +74,19 @@ QwSubsystemArray& QwSubsystemArray::operator=(const QwSubsystemArray& source)
   if (!source.empty()){
     if (this->size() == source.size()){
       for(size_t i=0;i<source.size();i++){
-        if (source.at(i)==NULL || this->at(i)==NULL){
+        if (!source.at(i) || !this->at(i)){
           //  Either the source or the destination subsystem
           //  are null
         } else {
-          VQwSubsystem *ptr1 =
-            dynamic_cast<VQwSubsystem*>(this->at(i).get());
-          if (typeid(*ptr1)==typeid(*(source.at(i).get()))){
+          auto *ptr1 = dynamic_cast<VQwSubsystem*>(this->at(i).get());
+          auto *ptr2 = source.at(i).get();
+          if( typeid(*ptr1) == typeid(*ptr2) ) {
             *(ptr1) = source.at(i).get();
           } else {
             //  Subsystems don't match
             QwError << " QwSubsystemArray::operator= types do not mach" << QwLog::endl;
             QwError << " typeid(ptr1)=" << typeid(*ptr1).name()
-                    << " but typeid(*(source.at(i).get()))=" << typeid(*(source.at(i).get())).name()
+                    << " but typeid(*(source.at(i).get()))=" << typeid(*ptr2).name()
                     << QwLog::endl;
           }
         }
@@ -678,22 +678,22 @@ void QwSubsystemArray::FillTreeVector(std::vector<Double_t>& values) const
 //     TList* return_maps_TList = new TList;
 //     return_maps_TList->SetOwner(true);
 //     return_maps_TList->SetName(name);
-    
+
 //     std::vector<TString> mapfiles_vector_subsystem;
 
 //     Int_t num_of_mapfiles_subsystem = 0;
 
-//     for (const_iterator subsys = begin(); subsys != end(); ++subsys) 
+//     for (const_iterator subsys = begin(); subsys != end(); ++subsys)
 //       {
 // 	(*subsys)->PrintDetectorMaps(true);
 // 	mapfiles_vector_subsystem = (*subsys)->GetParamFileNameList();
 // 	num_of_mapfiles_subsystem = (Int_t) mapfiles_vector_subsystem.size();
-	
-// 	for (Int_t i=0; i<num_of_mapfiles_subsystem; i++) 
+
+// 	for (Int_t i=0; i<num_of_mapfiles_subsystem; i++)
 // 	  {
 // 	    return_maps_TList -> AddLast(new TObjString(mapfiles_vector_subsystem[i]));
 // 	  }
-	
+
 // 	mapfiles_vector_subsystem.clear();
 //       }
 //     return return_maps_TList;
@@ -723,11 +723,11 @@ TList* QwSubsystemArray::GetParamFileNameList(TString name) const
 
     std::map<TString, TString> mapfiles_subsystem;
 
-    for (const_iterator subsys = begin(); subsys != end(); ++subsys) 
+    for (const_iterator subsys = begin(); subsys != end(); ++subsys)
       {
 	mapfiles_subsystem = (*subsys)->GetDetectorMaps();
 	for( std::map<TString, TString>::iterator ii= mapfiles_subsystem.begin(); ii!= mapfiles_subsystem.end(); ++ii)
-	  {	
+	  {
 	    TList *test = new TList;
 	    test->SetName((*ii).first);
 	    test->AddLast(new TObjString((*ii).second));
@@ -751,7 +751,7 @@ TList* QwSubsystemArray::GetParamFileNameList(TString name) const
  */
 void QwSubsystemArray::push_back(boost::shared_ptr<VQwSubsystem> subsys)
 {
-  
+
  if (subsys.get() == NULL) {
    QwError << "QwSubsystemArray::push_back(): NULL subsys"
            << QwLog::endl;
@@ -786,8 +786,3 @@ void QwSubsystemArray::push_back(boost::shared_ptr<VQwSubsystem> subsys)
    }
  }
 }
-  
-  
-  
-  
-  

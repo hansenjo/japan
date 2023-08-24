@@ -11,20 +11,23 @@
 */
 
 
-#ifndef __QwFAKEHELICITY__
-#define __QwFAKEHELICITY__
+#ifndef QwFAKEHELICITY_H
+#define QwFAKEHELICITY_H
 
 #include "QwHelicity.h"
 
 class QwFakeHelicity: public QwHelicity {
  public:
-  QwFakeHelicity(TString region_tmp):VQwSubsystem(region_tmp),QwHelicity(region_tmp),fMinPatternPhase(1)
+  explicit QwFakeHelicity(const TString& region_tmp)
+    : VQwSubsystem(region_tmp)
+    , QwHelicity(region_tmp)
+    , fMinPatternPhase(1)
 
     {
       // using the constructor of the base class
     };
 
-    virtual ~QwFakeHelicity() { };
+    virtual ~QwFakeHelicity() = default;
 
     void    ClearEventData();
     Bool_t  IsGoodHelicity();

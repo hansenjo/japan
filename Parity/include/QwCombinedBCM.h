@@ -9,8 +9,8 @@
 * Time-stamp:                                             *
 \**********************************************************/
 
-#ifndef __Qw_COMBINEDBCM__
-#define __Qw_COMBINEDBCM__
+#ifndef QW_COMBINEDBCM_H
+#define QW_COMBINEDBCM_H
 
 // System headers
 #include <vector>
@@ -39,7 +39,7 @@ template<typename T>
 class QwCombinedBCM : public QwBCM<T> {
 /////
  public:
-  QwCombinedBCM() { };
+  QwCombinedBCM() = default;
   QwCombinedBCM(TString name){
     InitializeChannel(name, "derived");
   };
@@ -53,7 +53,7 @@ class QwCombinedBCM : public QwBCM<T> {
   QwCombinedBCM(const QwCombinedBCM& source)
   : QwBCM<T>(source)
   { }
-  virtual ~QwCombinedBCM() { };
+  virtual ~QwCombinedBCM() = default;
 
   // This is to setup one of the used BCM's in this combo
   void SetBCMForCombo(VQwBCM* bcm, Double_t weight, Double_t sumqw );
@@ -65,7 +65,7 @@ class QwCombinedBCM : public QwBCM<T> {
   // new routine added to update necessary information for tree trimming
   void  InitializeChannel(TString subsystem, TString name, TString datatosave);
   void  InitializeChannel(TString subsystem, TString name, TString type,
-      TString datatosave);
+      const TString& datatosave);
 
   void  ProcessEvent();
 
@@ -133,7 +133,7 @@ class QwCombinedBCM : public QwBCM<T> {
   /// Internal normal random variable
   static boost::variate_generator
     < boost::mt19937, boost::random::uniform_real_distribution<double> > fRandomVariable;
-public: 
+public:
   static void SetTripSeed(uint seedval){fRandomVariable.engine().seed(seedval);}
   // @}
 };

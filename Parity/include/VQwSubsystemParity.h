@@ -6,8 +6,8 @@
 \**********************************************************/
 
 
-#ifndef __VQWSUBSYSTEMPARITY__
-#define __VQWSUBSYSTEMPARITY__
+#ifndef VQWSUBSYSTEMPARITY_H
+#define VQWSUBSYSTEMPARITY_H
 
 // ROOT headers
 #include <TTree.h>
@@ -35,13 +35,12 @@ class QwPromptSummary;
  */
 class VQwSubsystemParity: virtual public VQwSubsystem {
 
-  private:
-    /// Private default constructor (not implemented, will throw linker error on use)
-    VQwSubsystemParity();
-
   public:
-    /// Constructor with name
-    VQwSubsystemParity(const TString& name): VQwSubsystem(name) {
+  /// No default constructor
+  VQwSubsystemParity() = delete;
+
+  /// Constructor with name
+    explicit VQwSubsystemParity(const TString& name): VQwSubsystem(name) {
       SetEventTypeMask(0x1); // only accept 0x1
     };
     /// Copy constructor
@@ -49,14 +48,14 @@ class VQwSubsystemParity: virtual public VQwSubsystem {
     : VQwSubsystem(source)
     { }
     /// Default destructor
-    virtual ~VQwSubsystemParity() { };
+    virtual ~VQwSubsystemParity() = default;
 
     /// \brief Fill the database with MPS-based variables
     ///        Note that most subsystems don't need to do this.
-    virtual void FillDB_MPS(QwParityDB *db, TString type) {};
+    virtual void FillDB_MPS( QwParityDB *db, const TString& type) {};
     /// \brief Fill the database
-    virtual void FillDB(QwParityDB *db, TString type) { };
-    virtual void FillErrDB(QwParityDB *db, TString type) { };
+    virtual void FillDB( QwParityDB *db, const TString& type) {};
+    virtual void FillErrDB( QwParityDB *db, const TString& type) {};
 
     // VQwSubsystem routine is overridden. Call it at the beginning by VQwSubsystem::operator=(value)
     virtual VQwSubsystem& operator=  (VQwSubsystem *value) = 0;
@@ -76,7 +75,7 @@ class VQwSubsystemParity: virtual public VQwSubsystem {
     virtual void CalculateRunningAverage() = 0;
 
     /// \brief Load the event cuts file
-    virtual Int_t LoadEventCuts(TString filename) = 0;
+    virtual Int_t LoadEventCuts( const TString& filename) = 0;
     /// \brief Apply the single event cuts
     virtual Bool_t ApplySingleEventCuts() = 0;
     /// \brief Report the number of events failed due to HW and event cut failures
@@ -90,27 +89,27 @@ class VQwSubsystemParity: virtual public VQwSubsystem {
     /// \brief Return the error flag to the top level routines related to stability checks and ErrorFlag updates
     virtual UInt_t GetEventcutErrorFlag() = 0;
     /// \brief Uses the error flags of contained data elements to update
-    ///        Returns the error flag to the top level routines related 
+    ///        Returns the error flag to the top level routines related
     ///        to stability checks and ErrorFlag updates
-    virtual UInt_t UpdateErrorFlag(){return GetEventcutErrorFlag();};
+    virtual UInt_t UpdateErrorFlag() { return GetEventcutErrorFlag(); }
 
     /// \brief update the error flag in the subsystem level from the top level routines related to stability checks. This will uniquely update the errorflag at each channel based on the error flag in the corresponding channel in the ev_error subsystem
     virtual void UpdateErrorFlag(const VQwSubsystem *ev_error) = 0;
 
 
     /// \brief Blind the asymmetry of this subsystem
-    virtual void Blind(const QwBlinder *blinder) { return; };
+    virtual void Blind(const QwBlinder *blinder) { };
     /// \brief Blind the difference of this subsystem
-    virtual void Blind(const QwBlinder *blinder, const VQwSubsystemParity* subsys) { return; };
+    virtual void Blind(const QwBlinder *blinder, const VQwSubsystemParity* subsys) { };
 
     /// \brief Print values of all channels
     virtual void PrintValue() const { };
 
-    virtual void WritePromptSummary(QwPromptSummary *ps, TString type) {};
+    virtual void WritePromptSummary( QwPromptSummary *ps, const TString& type) {};
 
 
     virtual Bool_t CheckForEndOfBurst() const {return kFALSE;};
-	
+
 }; // class VQwSubsystemParity
 
-#endif // __VQWSUBSYSTEMPARITY__
+#endif // VQWSUBSYSTEMPARITY_H

@@ -5,8 +5,8 @@
 * Time-stamp: <2011-05-26>                                 *
 \**********************************************************/
 
-#ifndef __VQWBCM__
-#define __VQWBCM__
+#ifndef VQWBCM_H
+#define VQWBCM_H
 
 // System headers
 #include <vector>
@@ -35,7 +35,7 @@ class VQwBCM : public VQwDataElement {
   /***************************************************************
    *  Class:  VQwBCM
    *          Pure Virtual base class for the BCMs in the beamline.
-   *          Through use of the Create factory function, one can 
+   *          Through use of the Create factory function, one can
    *          get a concrete instance of a templated QwBCM.
    *
    ***************************************************************/
@@ -43,11 +43,11 @@ class VQwBCM : public VQwDataElement {
   template <typename T> friend class QwCombinedBCM;
 
 protected:
-  VQwBCM(VQwDataElement& beamcurrent): fBeamCurrent_ref(beamcurrent) { };
-  VQwBCM(VQwDataElement& beamcurrent, TString name): fBeamCurrent_ref(beamcurrent) { };
+  explicit VQwBCM(VQwDataElement& beamcurrent): fBeamCurrent_ref(beamcurrent) { };
+  VQwBCM(VQwDataElement& beamcurrent, const TString& name): fBeamCurrent_ref(beamcurrent) { };
 
 public:
-  virtual ~VQwBCM() { };
+  virtual ~VQwBCM() = default;
 
   // VQwDataElement virtual functions
   virtual Int_t ProcessEvBuffer(UInt_t* buffer, UInt_t word_position_in_buffer, UInt_t subelement=0) = 0;
@@ -67,7 +67,7 @@ public:
   virtual void LoadChannelParameters(QwParameterFile &paramfile) = 0;
   virtual Bool_t NeedsExternalClock() = 0;
   virtual void SetExternalClockPtr( const VQwHardwareChannel* clock) = 0;
-  virtual void SetExternalClockName( const std::string name) = 0;
+  virtual void SetExternalClockName( const std::string& name) = 0;
   virtual Double_t GetNormClockValue() = 0;
 
   virtual void SetDefaultSampleSize(Int_t sample_size) = 0;
@@ -97,10 +97,10 @@ public:
     {std::cerr << "FillRawEventData for VQwBPM not implemented!\n";};
   virtual void GetProjectedCharge(VQwBCM *device){};
   virtual size_t GetNumberOfElements(){return size_t(1);}
-  virtual TString GetSubElementName(Int_t subindex) 
+  virtual TString GetSubElementName(Int_t subindex)
   {
     std::cerr << "GetSubElementName()  is not implemented!! for device: " << GetElementName() << "\n";
-    return TString("OBJECT_UNDEFINED"); // Return an erroneous TString
+    return {"OBJECT_UNDEFINED"}; // Return an erroneous TString
   }
 //----------------------------------------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ public:
 
 protected:
   virtual VQwHardwareChannel* GetCharge() = 0;
-  
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 
 public:
@@ -155,4 +155,4 @@ protected:
 
 typedef boost::shared_ptr<VQwBCM> VQwBCM_ptr;
 
-#endif // __VQWBCM__
+#endif // VQWBCM_H
